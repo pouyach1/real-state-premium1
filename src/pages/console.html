@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>درخشان — کنسول مدیریت</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/console.css">
+</head>
+<body>
+
+<div class="amb"><b class="x1"></b><b class="x2"></b><div class="mesh"></div></div>
+
+<!-- ===== boot / auth ===== -->
+<div id="boot">
+  <span class="ring"></span><span class="ring"></span><span class="ring"></span>
+  <div class="authcard">
+    <div class="bootmark" id="bmark"></div>
+    <h1 style="text-align:center">کنسول مدیریت</h1>
+    <p style="text-align:center">دسترسی محدود · احراز هویت دو مرحله‌ای</p>
+    <div class="field"><label>ایمیل سازمانی</label><input class="inp" id="mail" value="admin@derakhshan.co" dir="ltr"></div>
+    <div class="field"><label>رمز عبور</label><input class="inp" type="password" value="••••••••••" dir="ltr"></div>
+    <div class="row" style="margin:16px 0 20px;font-size:11.5px;color:var(--mut)">
+      <span class="sw on" id="rem"><i></i></span> مرا به خاطر بسپار
+      <span style="margin-inline-start:auto;color:var(--s4);cursor:pointer">فراموشی رمز؟</span>
+    </div>
+    <button class="btn pri" id="login" style="width:100%;justify-content:center;padding:13px">ورود به کنسول</button>
+    <p style="text-align:center;margin:16px 0 0;font-size:10.5px;color:var(--dim)">نسخهٔ ۳٫۰ · ساخته‌شده برای درخشان</p>
+  </div>
+</div>
+
+<!-- ===== app shell ===== -->
+<div id="app">
+  <aside>
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2 22 9l-10 13L2 9 12 2Z" fill="url(#bg1)"/><path d="M2 9h20M12 2v20" stroke="#fff" stroke-opacity=".45" stroke-width=".7"/><defs><linearGradient id="bg1" x1="2" y1="2" x2="22" y2="22"><stop stop-color="#7DD3FC"/><stop offset="1" stop-color="#0086D1"/></linearGradient></defs></svg>
+      <span>درخشان<small>CONSOLE</small></span>
+    </div>
+    <div id="nav"></div>
+    <div class="me" data-go="settings">
+      <span class="av">پ‌چ</span>
+      <span><b>پویا چراغی</b><span>مدیر ارشد</span></span>
+      <svg style="margin-inline-start:auto" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+    </div>
+  </aside>
+
+  <main id="main">
+    <div class="top">
+      <div class="crumb"><span id="cb">داشبورد</span><b id="ct">نمای کلی</b></div>
+      <div class="search" id="openCmd">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+        جستجو در املاک، مشتریان، معاملات…
+        <kbd>Ctrl K</kbd>
+      </div>
+      <div class="icbtn" id="themeBtn" title="تم">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+      </div>
+      <div class="icbtn" id="bellBtn" title="اعلان‌ها"><span class="bd"></span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </div>
+      <button class="btn pri" id="newBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+        ثبت ملک
+      </button>
+    </div>
+    <div id="page" class="page"></div>
+  </main>
+</div>
+
+<div id="cmd"><div class="box">
+  <input id="cmdi" placeholder="یک دستور یا نام بنویسید…" autocomplete="off">
+  <div class="res" id="cmdr"></div>
+</div></div>
+
+<div id="scrim"></div>
+<div id="drw"></div>
+<div id="toasts"></div>
+
+<script src="../scripts/console.js"></script></body>
+</html>

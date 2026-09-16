@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>درخشان — کنسول مدیریت</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ===========================================================
+   DERAKHSHAN CONSOLE — crystal / sky system
+   =========================================================== */
+:root{
+  --s3:#7DD3FC; --s4:#38BDF8; --s5:#00A3FF; --s6:#0086D1;
+  --ink:#0B3A5C; --navy:#0F172A;
+  --ok:#22C55E; --warn:#F59E0B; --bad:#F43F5E; --gold:#FBBF24;
+  --ease:cubic-bezier(.7,0,.3,1);
+  --eo:cubic-bezier(.16,1,.3,1);
+  --r:16px;
+}
+:root[data-theme="dark"]{
+  --bg:#04101C; --bg2:#071A2B; --panel:rgba(125,211,252,.055);
+  --panel2:rgba(125,211,252,.09); --line:rgba(125,211,252,.14);
+  --tx:#E8F6FF; --mut:rgba(232,246,255,.58); --dim:rgba(232,246,255,.36);
+  --glow:0 30px 90px -40px rgba(0,163,255,.85);
+  --sh:0 20px 60px -30px rgba(0,0,0,.9);
+}
+:root[data-theme="light"]{
+  --bg:#EEF5FB; --bg2:#FFFFFF; --panel:rgba(255,255,255,.72);
+  --panel2:rgba(255,255,255,.9); --line:rgba(11,58,92,.12);
+  --tx:#0B3A5C; --mut:rgba(11,58,92,.62); --dim:rgba(11,58,92,.4);
+  --glow:0 30px 90px -40px rgba(0,163,255,.5);
+  --sh:0 20px 60px -34px rgba(11,58,92,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Vazirmatn',Tahoma,sans-serif;background:var(--bg);color:var(--tx);
+  overflow:hidden;line-height:1.6;-webkit-font-smoothing:antialiased;font-size:14px}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+::selection{background:var(--s5);color:#fff}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px}
+::-webkit-scrollbar-thumb:hover{background:var(--s5)}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ambient */
+.amb{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.amb b{position:absolute;border-radius:50%;filter:blur(110px);display:block}
+.amb .x1{width:46vw;height:46vw;right:-8vw;top:-14vw;background:radial-gradient(circle,rgba(0,163,255,.42),transparent 66%);animation:d1 26s var(--eo) infinite alternate}
+.amb .x2{width:40vw;height:40vw;left:-10vw;bottom:-12vw;background:radial-gradient(circle,rgba(125,211,252,.34),transparent 68%);animation:d2 32s var(--eo) infinite alternate}
+@keyframes d1{to{transform:translate3d(-8vw,10vh,0) scale(1.2)}}
+@keyframes d2{to{transform:translate3d(9vw,-8vh,0) scale(1.15)}}
+.amb .mesh{position:absolute;inset:0;opacity:.5;
+  background-image:linear-gradient(rgba(125,211,252,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(125,211,252,.05) 1px,transparent 1px);
+  background-size:76px 76px;
+  mask-image:radial-gradient(ellipse at 70% 10%,#000 10%,transparent 72%);
+  -webkit-mask-image:radial-gradient(ellipse at 70% 10%,#000 10%,transparent 72%)}
+:root[data-theme="light"] .amb .mesh{background-image:linear-gradient(rgba(11,58,92,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,58,92,.05) 1px,transparent 1px)}
+
+/* ---------- boot / auth ---------- */
+#boot{position:fixed;inset:0;z-index:999;background:var(--bg);display:grid;place-items:center;overflow:hidden}
+#boot .ring{position:absolute;border:1px solid var(--line);border-radius:50%;animation:rp 6s var(--eo) infinite}
+#boot .ring:nth-child(2){animation-delay:2s}#boot .ring:nth-child(3){animation-delay:4s}
+@keyframes rp{0%{width:6vw;height:6vw;opacity:0}18%{opacity:.7}100%{width:150vw;height:150vw;opacity:0}}
+.authcard{position:relative;z-index:2;width:min(420px,90vw);padding:38px 34px;border-radius:24px;
+  background:var(--panel2);border:1px solid var(--line);backdrop-filter:blur(26px);box-shadow:var(--glow);
+  animation:up .9s var(--eo) both .35s}
+@keyframes up{from{opacity:0;transform:translateY(38px) scale(.96)}}
+.authcard h1{font-size:26px;font-weight:900;letter-spacing:-.03em;margin:14px 0 4px}
+.authcard p{color:var(--mut);font-size:13px;margin-bottom:24px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11.5px;color:var(--mut);margin-bottom:6px;letter-spacing:.05em}
+.inp{width:100%;padding:12px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);
+  outline:none;transition:.35s var(--eo)}
+.inp:focus{border-color:var(--s5);box-shadow:0 0 0 4px rgba(0,163,255,.16);background:var(--panel2)}
+.bootmark{display:flex;gap:2px;font-weight:900;font-size:34px;letter-spacing:-.04em;justify-content:center}
+.bootmark span{display:inline-block;transform:translateY(120%);opacity:0;animation:lu .8s var(--eo) forwards;
+  background:linear-gradient(180deg,var(--s3),var(--s6));-webkit-background-clip:text;background-clip:text;color:transparent}
+@keyframes lu{to{transform:none;opacity:1}}
+
+/* ---------- shell ---------- */
+#app{display:none;height:100vh;position:relative;z-index:1}
+#app.on{display:grid;grid-template-columns:264px 1fr}
+aside{border-inline-start:1px solid var(--line);background:linear-gradient(180deg,var(--panel2),transparent);
+  backdrop-filter:blur(22px);display:flex;flex-direction:column;padding:18px 14px;overflow-y:auto;
+  animation:sin .8s var(--eo) both}
+@keyframes sin{from{opacity:0;transform:translateX(30px)}}
+.brand{display:flex;align-items:center;gap:10px;padding:8px 10px 18px;font-weight:900;font-size:19px;letter-spacing:-.03em}
+.brand svg{animation:spin 10s linear infinite}
+@keyframes spin{to{transform:rotateY(360deg)}}
+.brand small{display:block;font-size:9.5px;font-weight:500;letter-spacing:.24em;color:var(--dim)}
+.navgrp{margin-bottom:6px}
+.navgrp h6{font-size:10px;letter-spacing:.2em;color:var(--dim);padding:14px 12px 7px;font-weight:600}
+.nl{display:flex;align-items:center;gap:11px;padding:9.5px 12px;border-radius:11px;color:var(--mut);
+  font-size:13.5px;font-weight:500;position:relative;cursor:pointer;transition:.4s var(--eo);overflow:hidden}
+.nl svg{width:17px;height:17px;flex:none;transition:.5s var(--eo)}
+.nl:hover{color:var(--tx);background:var(--panel)}
+.nl:hover svg{transform:scale(1.14) rotate(-6deg)}
+.nl.on{color:#fff;background:linear-gradient(110deg,var(--s5),var(--s6));box-shadow:0 12px 30px -14px rgba(0,163,255,.9)}
+.nl .cnt{margin-inline-start:auto;font-size:10.5px;padding:1px 7px;border-radius:99px;background:var(--panel2);color:var(--s4)}
+.nl.on .cnt{background:rgba(255,255,255,.22);color:#fff}
+.me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:11px;border-radius:14px;
+  background:var(--panel);border:1px solid var(--line);cursor:pointer;transition:.4s var(--eo)}
+.me:hover{border-color:var(--s5)}
+.av{width:34px;height:34px;border-radius:11px;background:linear-gradient(140deg,var(--s4),var(--ink));
+  display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff;flex:none}
+.me b{font-size:12.5px;display:block}.me span{font-size:10.5px;color:var(--dim)}
+
+main{overflow-y:auto;position:relative}
+.top{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:12px;
+  padding:14px 26px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 72%,transparent);
+  backdrop-filter:blur(22px)}
+.crumb{font-size:12px;color:var(--dim)}
+.crumb b{color:var(--tx);font-weight:700;font-size:16px;letter-spacing:-.02em;display:block}
+.search{margin-inline-start:auto;display:flex;align-items:center;gap:9px;padding:8px 14px;border-radius:12px;
+  background:var(--panel);border:1px solid var(--line);color:var(--mut);cursor:pointer;font-size:12.5px;
+  transition:.4s var(--eo);min-width:230px}
+.search:hover{border-color:var(--s5);color:var(--tx)}
+.search kbd{margin-inline-start:auto;font-size:10px;padding:2px 6px;border-radius:5px;background:var(--panel2);border:1px solid var(--line)}
+.icbtn{width:38px;height:38px;border-radius:12px;background:var(--panel);border:1px solid var(--line);
+  display:grid;place-items:center;cursor:pointer;position:relative;transition:.4s var(--eo)}
+.icbtn:hover{border-color:var(--s5);transform:translateY(-2px)}
+.icbtn .bd{position:absolute;top:7px;left:7px;width:7px;height:7px;border-radius:50%;background:var(--bad);
+  box-shadow:0 0 0 0 rgba(244,63,94,.7);animation:pl 2s infinite}
+@keyframes pl{70%{box-shadow:0 0 0 9px rgba(244,63,94,0)}}
+
+.page{padding:26px;max-width:1560px}
+.page.enter{animation:pe .75s var(--eo) both}
+@keyframes pe{from{opacity:0;transform:translateY(26px) scale(.99);filter:blur(6px)}}
+.stg > *{animation:sg .7s var(--eo) both}
+.stg > *:nth-child(1){animation-delay:.02s}.stg > *:nth-child(2){animation-delay:.07s}
+.stg > *:nth-child(3){animation-delay:.12s}.stg > *:nth-child(4){animation-delay:.17s}
+.stg > *:nth-child(5){animation-delay:.22s}.stg > *:nth-child(6){animation-delay:.27s}
+.stg > *:nth-child(7){animation-delay:.32s}.stg > *:nth-child(8){animation-delay:.37s}
+@keyframes sg{from{opacity:0;transform:translateY(22px)}}
+
+/* ---------- primitives ---------- */
+.card{border-radius:var(--r);background:var(--panel);border:1px solid var(--line);
+  backdrop-filter:blur(18px);padding:20px;position:relative;overflow:hidden;
+  transition:.55s var(--eo)}
+.card.hov:hover{transform:translateY(-5px);border-color:rgba(56,189,248,.5);box-shadow:var(--glow)}
+.card h3{font-size:14.5px;font-weight:700;letter-spacing:-.01em}
+.card .sub{font-size:11.5px;color:var(--dim)}
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g21{grid-template-columns:2fr 1fr}
+.g12{grid-template-columns:1fr 2fr}
+@media(max-width:1280px){.g4{grid-template-columns:repeat(2,1fr)}.g3,.g21,.g12{grid-template-columns:1fr}}
+@media(max-width:900px){#app.on{grid-template-columns:1fr}aside{display:none}.g4,.g2{grid-template-columns:1fr}}
+.row{display:flex;align-items:center;gap:10px}
+.between{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mb{margin-bottom:16px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:11px;border:1px solid var(--line);
+  background:var(--panel);cursor:pointer;font-size:12.5px;font-weight:600;transition:.45s var(--eo);position:relative;overflow:hidden}
+.btn:hover{transform:translateY(-2px);border-color:var(--s5)}
+.btn.pri{background:linear-gradient(110deg,var(--s5),var(--s6));border-color:transparent;color:#fff;
+  box-shadow:0 12px 30px -14px rgba(0,163,255,.95)}
+.btn.pri:hover{box-shadow:var(--glow)}
+.chip{font-size:10.5px;padding:3px 9px;border-radius:99px;border:1px solid var(--line);background:var(--panel2);color:var(--mut)}
+.chip.ok{color:var(--ok);border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.1)}
+.chip.wr{color:var(--warn);border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.1)}
+.chip.bd{color:var(--bad);border-color:rgba(244,63,94,.35);background:rgba(244,63,94,.1)}
+.chip.sk{color:var(--s4);border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.1)}
+.kpi b{font-size:30px;font-weight:900;letter-spacing:-.04em;font-variant-numeric:tabular-nums;display:block;
+  background:linear-gradient(140deg,var(--s3),var(--s5));-webkit-background-clip:text;background-clip:text;color:transparent}
+.kpi .lb{font-size:11.5px;color:var(--mut)}
+.kpi .dl{font-size:11px;font-weight:700}
+.kpi .dl.up{color:var(--ok)}.kpi .dl.dn{color:var(--bad)}
+.kpi .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+  background:linear-gradient(140deg,rgba(0,163,255,.22),rgba(125,211,252,.1));border:1px solid var(--line)}
+.card .beam{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .6s;
+  background:radial-gradient(360px circle at var(--mx,50%) var(--my,50%),rgba(56,189,248,.16),transparent 62%)}
+.card.hov:hover .beam{opacity:1}
+
+/* table */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:start;font-size:10.5px;letter-spacing:.11em;color:var(--dim);font-weight:600;
+  padding:9px 12px;border-bottom:1px solid var(--line);cursor:pointer;user-select:none;white-space:nowrap}
+th:hover{color:var(--s4)}
+td{padding:12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr{transition:.35s var(--eo);cursor:pointer}
+tbody tr:hover{background:var(--panel2)}
+tbody tr td:first-child{border-inline-start:2px solid transparent}
+tbody tr:hover td:first-child{border-inline-start-color:var(--s5)}
+.thumb{width:46px;height:34px;border-radius:8px;overflow:hidden;position:relative;flex:none}
+.ph{position:absolute;inset:0}
+.ph .sk2{position:absolute;inset:0}
+.ph .tw{position:absolute;bottom:0;background:rgba(11,58,92,.82);border-radius:2px 2px 0 0}
+:root[data-theme="dark"] .ph .tw{background:rgba(4,16,28,.8)}
+
+/* pipeline */
+.kb{display:grid;grid-template-columns:repeat(5,minmax(200px,1fr));gap:12px;align-items:start;overflow-x:auto;padding-bottom:8px}
+.col{border-radius:14px;background:var(--panel);border:1px solid var(--line);padding:12px;min-height:200px;transition:.4s}
+.col.over{border-color:var(--s5);background:var(--panel2);box-shadow:inset 0 0 0 1px rgba(0,163,255,.3)}
+.col > .between{margin-bottom:10px}
+.col h5{font-size:12px;font-weight:700}
+.deal{padding:12px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);margin-bottom:9px;
+  cursor:grab;transition:.4s var(--eo);animation:sg .5s var(--eo) both}
+.deal:hover{transform:translateY(-3px) rotate(-.6deg);border-color:var(--s4);box-shadow:var(--sh)}
+.deal.drag{opacity:.35;transform:scale(.96) rotate(2deg)}
+.deal b{font-size:12.5px;display:block}
+.deal .v{font-size:13px;font-weight:800;color:var(--s4);letter-spacing:-.02em}
+.bar{height:4px;border-radius:9px;background:var(--panel2);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--s3),var(--s5));
+  transform-origin:right;animation:gw 1.2s var(--eo) both}
+@keyframes gw{from{transform:scaleX(0)}}
+
+/* calendar */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal .hd{font-size:10.5px;color:var(--dim);text-align:center;padding:6px 0}
+.day{aspect-ratio:1/.82;border-radius:11px;border:1px solid var(--line);background:var(--panel);padding:7px;
+  font-size:11px;cursor:pointer;transition:.4s var(--eo);position:relative;overflow:hidden}
+.day:hover{border-color:var(--s5);transform:translateY(-3px);box-shadow:var(--sh)}
+.day.today{background:linear-gradient(140deg,rgba(0,163,255,.22),transparent);border-color:var(--s5)}
+.day.off{opacity:.3}
+.day .ev{font-size:9px;padding:2px 5px;border-radius:5px;background:rgba(0,163,255,.2);color:var(--s3);
+  margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* media */
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.mi{aspect-ratio:4/3;border-radius:13px;overflow:hidden;position:relative;border:1px solid var(--line);
+  cursor:pointer;transition:.55s var(--eo)}
+.mi:hover{transform:translateY(-6px) scale(1.02);box-shadow:var(--glow);border-color:var(--s4)}
+.mi .ov{position:absolute;inset:0;background:linear-gradient(0deg,rgba(4,16,28,.85),transparent 55%);
+  opacity:0;transition:.5s var(--eo);display:flex;align-items:flex-end;padding:10px;font-size:10.5px;color:#fff}
+.mi:hover .ov{opacity:1}
+
+/* command palette */
+#cmd{position:fixed;inset:0;z-index:600;display:none;place-items:start center;padding-top:14vh;
+  background:rgba(2,8,16,.6);backdrop-filter:blur(8px)}
+#cmd.on{display:grid;animation:fi .3s both}
+@keyframes fi{from{opacity:0}}
+#cmd .box{width:min(620px,92vw);border-radius:18px;background:var(--panel2);border:1px solid var(--line);
+  backdrop-filter:blur(30px);box-shadow:var(--glow);overflow:hidden;animation:up .5s var(--eo) both}
+#cmd input{width:100%;padding:18px 20px;background:transparent;border:0;outline:none;font-size:15px}
+#cmd .res{max-height:52vh;overflow-y:auto;border-top:1px solid var(--line)}
+#cmd .r{display:flex;align-items:center;gap:11px;padding:11px 20px;cursor:pointer;font-size:13px;transition:.25s}
+#cmd .r:hover,#cmd .r.sel{background:linear-gradient(110deg,rgba(0,163,255,.22),transparent)}
+#cmd .r small{margin-inline-start:auto;color:var(--dim);font-size:10.5px}
+
+/* drawer */
+#drw{position:fixed;inset-block:0;inset-inline-start:auto;inset-inline-end:0;width:min(400px,92vw);z-index:550;
+  background:var(--bg2);border-inline-start:1px solid var(--line);transform:translateX(-100%);
+  transition:transform .7s var(--eo);padding:22px;overflow-y:auto;box-shadow:var(--sh)}
+:root:dir(rtl) #drw{transform:translateX(-100%)}
+#drw.on{transform:none}
+#scrim{position:fixed;inset:0;z-index:540;background:rgba(2,8,16,.55);backdrop-filter:blur(4px);
+  opacity:0;pointer-events:none;transition:.5s}
+#scrim.on{opacity:1;pointer-events:auto}
+
+/* toast */
+#toasts{position:fixed;bottom:20px;inset-inline-start:20px;z-index:700;display:flex;flex-direction:column;gap:9px}
+.toast{padding:12px 16px;border-radius:13px;background:var(--panel2);border:1px solid var(--line);
+  backdrop-filter:blur(22px);box-shadow:var(--sh);font-size:12.5px;display:flex;align-items:center;gap:10px;
+  animation:ti .55s var(--eo) both;min-width:240px}
+@keyframes ti{from{opacity:0;transform:translateY(20px) scale(.94)}}
+.toast.out{animation:to .4s var(--ease) forwards}
+@keyframes to{to{opacity:0;transform:translateX(-30px)}}
+.toast .dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+
+/* misc */
+.spark{display:block;width:100%;height:42px}
+.lgd{display:flex;gap:14px;font-size:11px;color:var(--mut);flex-wrap:wrap}
+.lgd i{width:9px;height:9px;border-radius:3px;display:inline-block;margin-inline-end:5px}
+.tabs{display:flex;gap:4px;padding:4px;border-radius:13px;background:var(--panel);border:1px solid var(--line);width:max-content}
+.tab{padding:7px 15px;border-radius:10px;font-size:12px;cursor:pointer;color:var(--mut);transition:.4s var(--eo)}
+.tab.on{background:linear-gradient(110deg,var(--s5),var(--s6));color:#fff;box-shadow:0 10px 24px -12px rgba(0,163,255,.9)}
+.sw{width:44px;height:25px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);
+  position:relative;cursor:pointer;transition:.45s var(--eo);flex:none}
+.sw i{position:absolute;top:2.5px;inset-inline-end:2.5px;width:18px;height:18px;border-radius:50%;
+  background:var(--mut);transition:.45s var(--eo)}
+.sw.on{background:linear-gradient(110deg,var(--s5),var(--s6));border-color:transparent}
+.sw.on i{inset-inline-end:calc(100% - 20.5px);background:#fff}
+.hm{display:grid;grid-template-columns:repeat(24,1fr);gap:3px}
+.hm i{aspect-ratio:1;border-radius:3px;transition:.4s var(--eo)}
+.hm i:hover{transform:scale(1.6);z-index:2}
+.list .it{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
+.list .it:last-child{border:0}
+.ring-c{transform:rotate(-90deg);transform-origin:center}
+.ring-c circle{transition:stroke-dashoffset 1.4s var(--eo)}
+.empty{text-align:center;padding:50px;color:var(--dim);font-size:12.5px}
+</style>
+</head>
+<body>
+
+<div class="amb"><b class="x1"></b><b class="x2"></b><div class="mesh"></div></div>
+
+<!-- ===== boot / auth ===== -->
+<div id="boot">
+  <span class="ring"></span><span class="ring"></span><span class="ring"></span>
+  <div class="authcard">
+    <div class="bootmark" id="bmark"></div>
+    <h1 style="text-align:center">کنسول مدیریت</h1>
+    <p style="text-align:center">دسترسی محدود · احراز هویت دو مرحله‌ای</p>
+    <div class="field"><label>ایمیل سازمانی</label><input class="inp" id="mail" value="admin@derakhshan.co" dir="ltr"></div>
+    <div class="field"><label>رمز عبور</label><input class="inp" type="password" value="••••••••••" dir="ltr"></div>
+    <div class="row" style="margin:16px 0 20px;font-size:11.5px;color:var(--mut)">
+      <span class="sw on" id="rem"><i></i></span> مرا به خاطر بسپار
+      <span style="margin-inline-start:auto;color:var(--s4);cursor:pointer">فراموشی رمز؟</span>
+    </div>
+    <button class="btn pri" id="login" style="width:100%;justify-content:center;padding:13px">ورود به کنسول</button>
+    <p style="text-align:center;margin:16px 0 0;font-size:10.5px;color:var(--dim)">نسخهٔ ۳٫۰ · ساخته‌شده برای درخشان</p>
+  </div>
+</div>
+
+<!-- ===== app shell ===== -->
+<div id="app">
+  <aside>
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2 22 9l-10 13L2 9 12 2Z" fill="url(#bg1)"/><path d="M2 9h20M12 2v20" stroke="#fff" stroke-opacity=".45" stroke-width=".7"/><defs><linearGradient id="bg1" x1="2" y1="2" x2="22" y2="22"><stop stop-color="#7DD3FC"/><stop offset="1" stop-color="#0086D1"/></linearGradient></defs></svg>
+      <span>درخشان<small>CONSOLE</small></span>
+    </div>
+    <div id="nav"></div>
+    <div class="me" data-go="settings">
+      <span class="av">پ‌چ</span>
+      <span><b>پویا چراغی</b><span>مدیر ارشد</span></span>
+      <svg style="margin-inline-start:auto" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+    </div>
+  </aside>
+
+  <main id="main">
+    <div class="top">
+      <div class="crumb"><span id="cb">داشبورد</span><b id="ct">نمای کلی</b></div>
+      <div class="search" id="openCmd">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+        جستجو در املاک، مشتریان، معاملات…
+        <kbd>Ctrl K</kbd>
+      </div>
+      <div class="icbtn" id="themeBtn" title="تم">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+      </div>
+      <div class="icbtn" id="bellBtn" title="اعلان‌ها"><span class="bd"></span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </div>
+      <button class="btn pri" id="newBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+        ثبت ملک
+      </button>
+    </div>
+    <div id="page" class="page"></div>
+  </main>
+</div>
+
+<div id="cmd"><div class="box">
+  <input id="cmdi" placeholder="یک دستور یا نام بنویسید…" autocomplete="off">
+  <div class="res" id="cmdr"></div>
+</div></div>
+
+<div id="scrim"></div>
+<div id="drw"></div>
+<div id="toasts"></div>
+
+<script>
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s)},
+    $$=function(s,r){return [].slice.call((r||document).querySelectorAll(s))};
+var fa=function(n){return String(n).replace(/\d/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'[d]})};
+var num=function(n){return fa(Number(n).toLocaleString('en-US'))};
+var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* =============== ICONS =============== */
+var I={
+ dash:'M3 13h8V3H3v10Zm0 8h8v-6H3v6Zm10 0h8V11h-8v10Zm0-18v6h8V3h-8Z',
+ home:'M3 10.5 12 3l9 7.5V21H3V10.5Z M9 21v-7h6v7',
+ users:'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8m13 10v-2a4 4 0 0 0-3-3.9',
+ pipe:'M3 3v18h18M7 15l4-5 4 3 5-7',
+ cal:'M3 5h18v16H3V5Zm0 5h18M8 3v4m8-4v4',
+ chart:'M4 20V9m5 11V4m5 16v-7m5 7V7',
+ media:'M3 5h18v14H3V5Zm3 9 3.5-4 3 3.5L15 10l4 5',
+ doc:'M6 2h8l4 4v16H6V2Zm8 0v4h4',
+ msg:'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10Z',
+ card:'M2 7h20v12H2V7Zm0 4h20',
+ cog:'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8-3 2-1.2-2-3.4-2.2.9a8 8 0 0 0-2-1.2L15.4 4h-3.9l-.4 2.3a8 8 0 0 0-2 1.2L6.9 6.6l-2 3.4L7 11.2a8 8 0 0 0 0 2.3L5 14.7l2 3.4 2.2-.9a8 8 0 0 0 2 1.2l.4 2.3h3.9l.4-2.3a8 8 0 0 0 2-1.2l2.2.9 2-3.4L20 13.5',
+ shield:'M12 2 4 5v7c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V5l-8-3Z M9 12l2 2 4-4',
+ key:'M15 2a7 7 0 1 0-6.6 9.3L3 17v5h5l1-1v-2h2v-2h2l1.6-1.6A7 7 0 0 0 15 2Z',
+ bolt:'M13 2 3 14h8l-1 8 10-12h-8l1-8Z',
+ map:'M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Zm0 0v16m6-14v16'
+};
+function ic(n,sz){return '<svg width="'+(sz||17)+'" height="'+(sz||17)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="'+I[n]+'"/></svg>'}
+
+/* =============== DATA =============== */
+var SCENES=[
+ ['linear-gradient(180deg,#9AD8FF,#E6F5FF 60%,#fff)',[[12,18,52],[33,13,70],[58,16,44]]],
+ ['linear-gradient(180deg,#0B3A5C,#38BDF8 65%,#EAF6FF)',[[20,24,64],[50,18,46]]],
+ ['linear-gradient(200deg,#FFFFFF,#BFE6FF)',[[28,30,58]]],
+ ['linear-gradient(180deg,#7DD3FC,#FFFFFF)',[[10,15,40],[30,20,68],[56,14,52],[74,12,36]]],
+ ['linear-gradient(170deg,#E9F6FF,#9AD8FF)',[[22,26,50],[54,22,72]]],
+ ['linear-gradient(180deg,#0F172A,#0086D1 70%,#D7EFFF)',[[18,20,58],[46,24,42],[74,14,66]]]
+];
+function ph(i){var s=SCENES[i%SCENES.length];
+  var h='<div class="ph"><div class="sk2" style="background:'+s[0]+'"></div>';
+  s[1].forEach(function(t){h+='<div class="tw" style="right:'+t[0]+'%;width:'+t[1]+'%;height:'+t[2]+'%"></div>'});
+  return h+'</div>'}
+
+var DISTRICTS=['زعفرانیه','لواسان','الهیه','فرمانیه','کامرانیه','نیاوران','ولنجک','دربند','قیطریه','اقدسیه'];
+var TYPES=['پنت‌هاوس','ویلا','آپارتمان','دوبلکس','تجاری','زمین'];
+var STATUS=[['فعال','ok'],['در حال مذاکره','wr'],['فروخته‌شده','sk'],['پیش‌نویس','']];
+var AGENTS=['نگین کاویانی','آرش رستمی','سارا مهرابی','بهرام نوری','لیلا شریفی','کامران احمدی'];
+
+function seed(s){var x=s;return function(){x=(x*1103515245+12345)&0x7fffffff;return x/0x7fffffff}}
+var rnd=seed(42);
+function pick(a){return a[Math.floor(rnd()*a.length)]}
+
+var LISTINGS=[];
+for(var i=0;i<34;i++){
+  var st=STATUS[Math.floor(rnd()*4)];
+  LISTINGS.push({
+    id:'DP-'+(1400+i),
+    title:pick(['پنت‌هاوس کریستال','ویلای شیشه‌ای','آپارتمان آسمان','دوبلکس نور','برج باغ','سوئیت افق','عمارت مروارید'])+' '+pick(DISTRICTS),
+    d:pick(DISTRICTS), t:pick(TYPES),
+    price:Math.round(18+rnd()*140), area:Math.round(90+rnd()*900),
+    bed:1+Math.floor(rnd()*6), st:st[0], sc:st[1],
+    agent:pick(AGENTS), views:Math.round(120+rnd()*4200), leads:Math.round(rnd()*46),
+    img:Math.floor(rnd()*6), days:Math.round(rnd()*90)
+  });
+}
+var LEADS=[];
+var LNAMES=['سارا مرادی','امیر کاظمی','نگار حسینی','رضا فتحی','مریم جلالی','حسین عباسی','الهام رضایی','کاوه یزدانی','شیرین ملکی','بابک صفری','ندا قاسمی','فرهاد ترابی'];
+for(i=0;i<24;i++){
+  LEADS.push({n:LNAMES[i%LNAMES.length], src:pick(['اینستاگرام','گوگل','معرفی','سایت','تماس مستقیم','دیوار']),
+    score:Math.round(35+rnd()*64), budget:Math.round(20+rnd()*120), agent:pick(AGENTS),
+    stage:pick(['جدید','تماس‌گرفته','بازدید','پیشنهاد','بسته']), last:Math.round(rnd()*20)});
+}
+var STAGES=['سرنخ جدید','تماس اولیه','بازدید','پیشنهاد قیمت','قرارداد'];
+var DEALS=[];
+for(i=0;i<14;i++){
+  DEALS.push({id:'d'+i, n:pick(LNAMES), p:pick(LISTINGS).title, v:Math.round(22+rnd()*110),
+    s:Math.floor(rnd()*5), prob:Math.round(20+rnd()*78), agent:pick(AGENTS)});
+}
+
+/* =============== CHART HELPERS =============== */
+function path(vals,w,h,pad){
+  pad=pad||0; var mx=Math.max.apply(null,vals), mn=Math.min.apply(null,vals);
+  var rg=(mx-mn)||1, st=w/(vals.length-1), d='';
+  vals.forEach(function(v,i){
+    var x=i*st, y=h-pad-((v-mn)/rg)*(h-pad*2);
+    if(i===0){d+='M'+x+' '+y}
+    else{var px=(i-1)*st, py=h-pad-((vals[i-1]-mn)/rg)*(h-pad*2);
+      d+=' C'+(px+st/2)+' '+py+','+(x-st/2)+' '+y+','+x+' '+y}
+  });
+  return d;
+}
+function area(vals,w,h,id,c1,c2,pad){
+  var d=path(vals,w,h,pad||8);
+  return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" style="width:100%;height:100%;overflow:visible">'+
+   '<defs><linearGradient id="'+id+'" x1="0" y1="0" x2="0" y2="1">'+
+   '<stop offset="0" stop-color="'+c1+'" stop-opacity=".45"/><stop offset="1" stop-color="'+c1+'" stop-opacity="0"/></linearGradient></defs>'+
+   '<path d="'+d+' L'+w+' '+h+' L0 '+h+' Z" fill="url(#'+id+')"/>'+
+   '<path d="'+d+'" fill="none" stroke="'+(c2||c1)+'" stroke-width="2" stroke-linecap="round" '+
+   'style="stroke-dasharray:2400;stroke-dashoffset:2400;animation:dr 1.8s cubic-bezier(.16,1,.3,1) forwards"/></svg>'+
+   '<style>@keyframes dr{to{stroke-dashoffset:0}}</style>';
+}
+function bars(vals,labels,c){
+  var mx=Math.max.apply(null,vals);
+  return '<div style="display:flex;align-items:flex-end;gap:8px;height:150px">'+vals.map(function(v,i){
+    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end">'+
+      '<span style="font-size:9.5px;color:var(--dim)">'+num(v)+'</span>'+
+      '<div style="width:100%;border-radius:7px 7px 3px 3px;background:linear-gradient(180deg,'+(c||'var(--s4)')+',rgba(0,163,255,.18));'+
+      'height:'+(v/mx*100)+'%;transform-origin:bottom;animation:gy .9s cubic-bezier(.16,1,.3,1) '+(i*0.06)+'s both"></div>'+
+      '<span style="font-size:9.5px;color:var(--mut)">'+labels[i]+'</span></div>'}).join('')+
+    '</div><style>@keyframes gy{from{transform:scaleY(0)}}</style>';
+}
+function donut(segs,size){
+  size=size||130; var r=size/2-12, c=2*Math.PI*r, off=0, tot=0;
+  segs.forEach(function(s){tot+=s[1]});
+  var out='<svg width="'+size+'" height="'+size+'" class="ring-c" viewBox="0 0 '+size+' '+size+'">';
+  out+='<circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="var(--line)" stroke-width="11"/>';
+  segs.forEach(function(s,i){
+    var len=s[1]/tot*c;
+    out+='<circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="'+s[2]+'" stroke-width="11" '+
+      'stroke-linecap="round" stroke-dasharray="'+len+' '+(c-len)+'" stroke-dashoffset="'+(-off)+'" '+
+      'style="opacity:0;animation:fq .8s '+(i*.14)+'s forwards"/>';
+    off+=len;
+  });
+  return out+'</svg><style>@keyframes fq{to{opacity:1}}</style>';
+}
+function spark(vals,c){
+  return '<svg class="spark" viewBox="0 0 100 40" preserveAspectRatio="none">'+
+   '<path d="'+path(vals,100,40,4)+'" fill="none" stroke="'+(c||'var(--s4)')+'" stroke-width="2"/></svg>';
+}
+function series(n,base,vol){var a=[],v=base;for(var i=0;i<n;i++){v+=(rnd()-.45)*vol;a.push(Math.max(2,Math.round(v)))}return a}
+
+/* =============== NAV =============== */
+var NAV=[
+ ['عملیات',[
+   ['dashboard','داشبورد','dash',''],
+   ['listings','املاک','home','۳۴'],
+   ['leads','مشتریان','users','۲۴'],
+   ['pipeline','معاملات','pipe','۱۴'],
+   ['calendar','بازدیدها','cal','۷']
+ ]],
+ ['رشد',[
+   ['analytics','تحلیل','chart',''],
+   ['marketing','کمپین‌ها','bolt',''],
+   ['map','نقشهٔ بازار','map','']
+ ]],
+ ['محتوا',[
+   ['media','کتابخانهٔ رسانه','media',''],
+   ['cms','صفحات سایت','doc',''],
+   ['messages','پیام‌ها','msg','۳']
+ ]],
+ ['سیستم',[
+   ['team','تیم و دسترسی','shield',''],
+   ['billing','مالی','card',''],
+   ['audit','گزارش رویداد','key',''],
+   ['settings','تنظیمات','cog','']
+ ]]
+];
+var TITLES={dashboard:['داشبورد','نمای کلی'],listings:['املاک','مدیریت پرتفوی'],leads:['مشتریان','CRM'],
+ pipeline:['معاملات','پایپ‌لاین فروش'],calendar:['بازدیدها','تقویم'],analytics:['تحلیل','هوش تجاری'],
+ marketing:['کمپین‌ها','بازاریابی'],map:['نقشه','توزیع جغرافیایی'],media:['رسانه','کتابخانه'],
+ cms:['محتوا','صفحات سایت'],messages:['پیام‌ها','گفتگو'],team:['تیم','نقش و دسترسی'],
+ billing:['مالی','درآمد و کمیسیون'],audit:['امنیت','گزارش رویداد'],settings:['تنظیمات','پیکربندی'],
+ detail:['املاک','جزئیات ملک']};
+
+var navEl=$('#nav');
+NAV.forEach(function(g){
+  var d=document.createElement('div'); d.className='navgrp';
+  d.innerHTML='<h6>'+g[0]+'</h6>'+g[1].map(function(n){
+    return '<a class="nl" data-go="'+n[0]+'">'+ic(n[2])+'<span>'+n[1]+'</span>'+(n[3]?'<span class="cnt">'+n[3]+'</span>':'')+'</a>'
+  }).join('');
+  navEl.appendChild(d);
+});
+
+/* =============== PAGES =============== */
+var P={};
+
+P.dashboard=function(){
+  var rev=series(30,60,26), lead=series(30,22,9);
+  var k=[
+    ['ارزش پرتفوی','۱٬۴۲۰ میلیارد','+۱۲٫۴٪','up','home'],
+    ['معاملات فعال','۱۴','+۳','up','pipe'],
+    ['سرنخ این ماه','۲۴۸','+۱۸٫۲٪','up','users'],
+    ['میانگین زمان فروش','۹ روز','−۲ روز','up','bolt']
+  ];
+  return '<div class="grid g4 mb stg">'+k.map(function(x,i){
+    return '<div class="card hov kpi"><div class="beam"></div><div class="between mb">'+
+      '<span class="ic">'+ic(x[4],18)+'</span><span class="dl '+x[3]+'">'+x[2]+'</span></div>'+
+      '<b data-cd>'+x[1]+'</b><span class="lb">'+x[0]+'</span>'+
+      '<div style="margin-top:10px;opacity:.65">'+spark(series(14,40,18))+'</div></div>'
+  }).join('')+'</div>'+
+
+  '<div class="grid g21 mb">'+
+    '<div class="card hov"><div class="beam"></div><div class="between mb">'+
+      '<div><h3>روند درآمد</h3><span class="sub">۳۰ روز گذشته · میلیارد تومان</span></div>'+
+      '<div class="tabs"><span class="tab on">۳۰ روز</span><span class="tab">۹۰ روز</span><span class="tab">سال</span></div></div>'+
+      '<div style="height:210px">'+area(rev,600,200,'ga','#00A3FF','#38BDF8')+'</div>'+
+      '<div class="lgd" style="margin-top:12px"><span><i style="background:var(--s4)"></i>درآمد ناخالص</span>'+
+      '<span><i style="background:var(--s3)"></i>کمیسیون</span></div></div>'+
+
+    '<div class="card hov"><div class="beam"></div><h3 class="mb">ترکیب پرتفوی</h3>'+
+      '<div class="row" style="justify-content:center;margin:6px 0 14px">'+
+      donut([['پنت‌هاوس',34,'#00A3FF'],['ویلا',26,'#38BDF8'],['آپارتمان',22,'#7DD3FC'],['تجاری',18,'#0B3A5C']])+'</div>'+
+      '<div class="list">'+[['پنت‌هاوس','۳۴٪','#00A3FF'],['ویلا','۲۶٪','#38BDF8'],['آپارتمان','۲۲٪','#7DD3FC'],['تجاری','۱۸٪','#0B3A5C']]
+        .map(function(r){return '<div class="it" style="padding:7px 0"><i style="width:9px;height:9px;border-radius:3px;background:'+r[2]+'"></i>'+
+        '<span style="font-size:12px">'+r[0]+'</span><b style="margin-inline-start:auto;font-size:12px">'+r[1]+'</b></div>'}).join('')+
+      '</div></div>'+
+  '</div>'+
+
+  '<div class="grid g12">'+
+    '<div class="card hov"><div class="beam"></div><h3 class="mb">سرنخ‌های ورودی</h3>'+
+      '<div style="height:170px">'+area(lead,400,160,'gb','#7DD3FC','#7DD3FC')+'</div>'+
+      '<div class="between" style="margin-top:14px;font-size:11.5px;color:var(--mut)">'+
+      '<span>نرخ تبدیل</span><b style="color:var(--ok)">۲۳٫۸٪</b></div>'+
+      '<div class="bar"><i style="width:23.8%"></i></div></div>'+
+
+    '<div class="card hov"><div class="beam"></div><div class="between mb"><h3>فعالیت امروز</h3>'+
+      '<span class="chip sk">زنده</span></div><div class="list">'+
+      [['نگین کاویانی','قرارداد DP-1417 را نهایی کرد','۱۲ دقیقه','ok'],
+       ['آرش رستمی','بازدید ویلای لواسان ثبت شد','۴۰ دقیقه','sk'],
+       ['سیستم','۶ سرنخ جدید از کمپین اینستاگرام','۱ ساعت',''],
+       ['سارا مهرابی','قیمت پنت‌هاوس زعفرانیه بروزرسانی شد','۲ ساعت','wr'],
+       ['بهرام نوری','پیشنهاد ۸۴ میلیاردی رد شد','۳ ساعت','bd']].map(function(a){
+        return '<div class="it"><span class="av" style="width:30px;height:30px;font-size:11px">'+a[0].slice(0,1)+'</span>'+
+        '<span><b style="font-size:12px;display:block">'+a[0]+'</b><span style="font-size:11px;color:var(--mut)">'+a[1]+'</span></span>'+
+        '<span class="chip '+a[3]+'" style="margin-inline-start:auto">'+a[2]+'</span></div>'}).join('')+
+      '</div></div>'+
+  '</div>';
+};
+
+var sortKey='price', sortDir=-1;
+P.listings=function(){
+  var rows=LISTINGS.slice().sort(function(a,b){
+    var x=a[sortKey],y=b[sortKey];
+    return (typeof x==='string'? x.localeCompare(y): x-y)*sortDir});
+  return '<div class="between mb">'+
+    '<div class="tabs"><span class="tab on">همه (۳۴)</span><span class="tab">فعال (۱۸)</span><span class="tab">مذاکره (۹)</span><span class="tab">آرشیو</span></div>'+
+    '<div class="row"><button class="btn">'+ic('doc',14)+'خروجی Excel</button>'+
+    '<button class="btn pri">'+ic('bolt',14)+'ثبت ملک جدید</button></div></div>'+
+
+  '<div class="grid g4 mb stg">'+[['۳۴','کل املاک','sk'],['۱۸','فعال','ok'],['۹','در مذاکره','wr'],['۱٬۴۲۰ میلیارد','ارزش کل','']]
+    .map(function(x){return '<div class="card hov kpi"><div class="beam"></div><b>'+x[0]+'</b><span class="lb">'+x[1]+'</span></div>'}).join('')+'</div>'+
+
+  '<div class="card" style="padding:6px 0"><div style="overflow-x:auto"><table><thead><tr>'+
+    ['title:ملک','d:منطقه','t:نوع','price:قیمت (میلیارد)','area:متراژ','st:وضعیت','agent:مشاور','views:بازدید','leads:سرنخ']
+    .map(function(c){var p=c.split(':');return '<th data-sort="'+p[0]+'">'+p[1]+(sortKey===p[0]?(sortDir>0?' ↑':' ↓'):'')+'</th>'}).join('')+
+    '</tr></thead><tbody>'+rows.map(function(r,i){
+      return '<tr data-detail="'+r.id+'" style="animation:sg .5s cubic-bezier(.16,1,.3,1) '+Math.min(i*0.018,.5)+'s both">'+
+      '<td><div class="row"><span class="thumb">'+ph(r.img)+'</span><span><b style="display:block;font-size:12.5px">'+r.title+'</b>'+
+      '<span style="font-size:10.5px;color:var(--dim)">'+r.id+'</span></span></div></td>'+
+      '<td>'+r.d+'</td><td><span class="chip">'+r.t+'</span></td>'+
+      '<td><b style="color:var(--s4)">'+num(r.price)+'</b></td>'+
+      '<td>'+num(r.area)+'</td><td><span class="chip '+r.sc+'">'+r.st+'</span></td>'+
+      '<td style="font-size:11.5px;color:var(--mut)">'+r.agent+'</td>'+
+      '<td>'+num(r.views)+'</td><td><b>'+num(r.leads)+'</b></td></tr>'
+    }).join('')+'</tbody></table></div></div>';
+};
+
+P.detail=function(id){
+  var r=LISTINGS.filter(function(x){return x.id===id})[0]||LISTINGS[0];
+  return '<button class="btn mb" data-go="listings">→ بازگشت به فهرست</button>'+
+  '<div class="grid g21 mb">'+
+    '<div class="card" style="padding:0;overflow:hidden">'+
+      '<div style="aspect-ratio:16/8;position:relative">'+ph(r.img)+
+      '<div style="position:absolute;inset:auto 0 0 0;padding:22px;background:linear-gradient(0deg,rgba(4,16,28,.9),transparent)">'+
+      '<span class="chip '+r.sc+'">'+r.st+'</span>'+
+      '<h2 style="font-size:26px;font-weight:900;letter-spacing:-.03em;margin-top:8px;color:#fff">'+r.title+'</h2>'+
+      '<span style="color:rgba(255,255,255,.75);font-size:12px">'+r.d+' · '+r.t+' · کد '+r.id+'</span></div></div>'+
+      '<div class="grid g4" style="padding:18px;gap:12px">'+
+      [['قیمت',num(r.price)+' میلیارد'],['متراژ',num(r.area)+' متر'],['خواب',fa(r.bed)],['روی سایت',fa(r.days)+' روز']]
+      .map(function(x){return '<div><span class="sub">'+x[0]+'</span><b style="display:block;font-size:16px;letter-spacing:-.02em">'+x[1]+'</b></div>'}).join('')+
+      '</div></div>'+
+    '<div>'+
+      '<div class="card hov mb"><h3 class="mb">عملکرد آگهی</h3>'+
+        '<div style="height:110px">'+area(series(20,r.views/20,r.views/40),300,100,'gd','#38BDF8')+'</div>'+
+        '<div class="between" style="margin-top:12px"><span class="sub">بازدید</span><b>'+num(r.views)+'</b></div>'+
+        '<div class="between"><span class="sub">سرنخ</span><b style="color:var(--ok)">'+num(r.leads)+'</b></div>'+
+        '<div class="between"><span class="sub">نرخ تبدیل</span><b>'+fa((r.leads/r.views*100).toFixed(1))+'٪</b></div></div>'+
+      '<div class="card hov"><h3 class="mb">مشاور مسئول</h3>'+
+        '<div class="row"><span class="av">'+r.agent.slice(0,1)+'</span><span><b style="font-size:13px;display:block">'+r.agent+'</b>'+
+        '<span class="sub">مشاور ارشد</span></span></div>'+
+        '<button class="btn pri" style="width:100%;justify-content:center;margin-top:14px">تماس با مشاور</button></div>'+
+    '</div></div>'+
+  '<div class="grid g3">'+
+    '<div class="card hov"><h3 class="mb">امکانات</h3><div style="display:flex;flex-wrap:wrap;gap:6px">'+
+     ['استخر','سونا','جکوزی','پارکینگ ۳','انباری','لابی مجلل','نورگیر سقفی','هوشمندسازی','آسانسور اختصاصی','روف‌گاردن']
+     .map(function(f){return '<span class="chip sk">'+f+'</span>'}).join('')+'</div></div>'+
+    '<div class="card hov"><h3 class="mb">تاریخچهٔ قیمت</h3><div style="height:120px">'+
+      area([r.price*0.86,r.price*0.9,r.price*0.94,r.price*0.97,r.price],300,110,'ge','#7DD3FC')+'</div></div>'+
+    '<div class="card hov"><h3 class="mb">اسناد</h3><div class="list">'+
+     [['سند تک‌برگ','تأیید شده','ok'],['پایان‌کار','تأیید شده','ok'],['نقشهٔ معماری','در انتظار','wr'],['گزارش ارزیابی','تأیید شده','ok']]
+     .map(function(d){return '<div class="it">'+ic('doc',15)+'<span style="font-size:12px">'+d[0]+'</span>'+
+      '<span class="chip '+d[2]+'" style="margin-inline-start:auto">'+d[1]+'</span></div>'}).join('')+'</div></div>'+
+  '</div>';
+};
+
+P.leads=function(){
+  return '<div class="grid g4 mb stg">'+
+   [['۲۴۸','سرنخ این ماه','+۱۸٪'],['۲۳٫۸٪','نرخ تبدیل','+۲٫۱٪'],['۴۲ دقیقه','میانگین پاسخ','−۸ دقیقه'],['۸۶','امتیاز کیفیت','+۴']]
+   .map(function(x){return '<div class="card hov kpi"><div class="beam"></div><div class="between mb"><span class="ic">'+ic('users',18)+'</span>'+
+     '<span class="dl up">'+x[2]+'</span></div><b>'+x[0]+'</b><span class="lb">'+x[1]+'</span></div>'}).join('')+'</div>'+
+
+  '<div class="grid g21">'+
+   '<div class="card" style="padding:6px 0"><div class="between" style="padding:14px 18px 6px"><h3>فهرست سرنخ‌ها</h3>'+
+   '<div class="tabs"><span class="tab on">همه</span><span class="tab">داغ</span><span class="tab">سرد</span></div></div>'+
+   '<div style="overflow-x:auto"><table><thead><tr><th>مشتری</th><th>منبع</th><th>امتیاز</th><th>بودجه</th><th>مرحله</th><th>مشاور</th><th>آخرین تماس</th></tr></thead><tbody>'+
+   LEADS.map(function(l,i){
+     var sc=l.score>80?'ok':l.score>60?'wr':'bd';
+     return '<tr style="animation:sg .5s cubic-bezier(.16,1,.3,1) '+(i*0.025)+'s both">'+
+     '<td><div class="row"><span class="av" style="width:30px;height:30px;border-radius:9px;font-size:11px">'+l.n.slice(0,1)+'</span><b>'+l.n+'</b></div></td>'+
+     '<td><span class="chip">'+l.src+'</span></td>'+
+     '<td><div class="row" style="gap:7px"><b style="color:var(--'+(sc==='ok'?'ok':sc==='wr'?'warn':'bad')+')">'+fa(l.score)+'</b>'+
+     '<span class="bar" style="width:52px;margin:0"><i style="width:'+l.score+'%"></i></span></div></td>'+
+     '<td>'+num(l.budget)+' میلیارد</td><td><span class="chip sk">'+l.stage+'</span></td>'+
+     '<td style="font-size:11.5px;color:var(--mut)">'+l.agent+'</td>'+
+     '<td style="color:var(--dim)">'+fa(l.last)+' روز پیش</td></tr>'}).join('')+
+   '</tbody></table></div></div>'+
+
+   '<div><div class="card hov mb"><h3 class="mb">منابع جذب</h3>'+
+    '<div class="row" style="justify-content:center;margin-bottom:14px">'+
+    donut([['اینستاگرام',38,'#00A3FF'],['گوگل',24,'#38BDF8'],['معرفی',21,'#7DD3FC'],['سایر',17,'#0B3A5C']],140)+'</div>'+
+    '<div class="lgd" style="justify-content:center">'+
+    [['اینستاگرام','#00A3FF'],['گوگل','#38BDF8'],['معرفی','#7DD3FC'],['سایر','#0B3A5C']]
+    .map(function(x){return '<span><i style="background:'+x[1]+'"></i>'+x[0]+'</span>'}).join('')+'</div></div>'+
+    '<div class="card hov"><h3 class="mb">سرنخ در هفته</h3>'+
+    bars([42,58,51,73,66,88,79],['ش','ی','د','س','چ','پ','ج'])+'</div></div>'+
+  '</div>';
+};
+
+P.pipeline=function(){
+  var total=DEALS.reduce(function(a,d){return a+d.v},0);
+  return '<div class="between mb"><div class="row">'+
+   '<div class="card" style="padding:12px 18px"><span class="sub">ارزش پایپ‌لاین</span>'+
+   '<b style="display:block;font-size:20px;color:var(--s4)">'+num(total)+' میلیارد</b></div>'+
+   '<div class="card" style="padding:12px 18px"><span class="sub">وزنی (احتمال)</span>'+
+   '<b style="display:block;font-size:20px">'+num(Math.round(DEALS.reduce(function(a,d){return a+d.v*d.prob/100},0)))+' میلیارد</b></div></div>'+
+   '<button class="btn pri">معاملهٔ جدید</button></div>'+
+   '<p class="sub mb">کارت‌ها را بکشید و بین ستون‌ها جابه‌جا کنید.</p>'+
+   '<div class="kb" id="kb">'+STAGES.map(function(s,si){
+     var ds=DEALS.filter(function(d){return d.s===si});
+     return '<div class="col" data-col="'+si+'"><div class="between"><h5>'+s+'</h5>'+
+      '<span class="chip sk">'+fa(ds.length)+'</span></div>'+
+      '<div class="bar" style="margin-bottom:10px"><i style="width:'+(ds.length/Math.max(1,DEALS.length)*100*2.5)+'%"></i></div>'+
+      ds.map(function(d,i){
+        return '<div class="deal" draggable="true" data-id="'+d.id+'" style="animation-delay:'+(i*.06)+'s">'+
+        '<b>'+d.n+'</b><span class="sub" style="display:block;margin-bottom:6px">'+d.p+'</span>'+
+        '<div class="between"><span class="v">'+num(d.v)+' میلیارد</span><span class="chip '+(d.prob>70?'ok':d.prob>45?'wr':'bd')+'">'+fa(d.prob)+'٪</span></div>'+
+        '<div class="bar"><i style="width:'+d.prob+'%"></i></div>'+
+        '<div class="row" style="margin-top:9px"><span class="av" style="width:22px;height:22px;border-radius:7px;font-size:9px">'+d.agent.slice(0,1)+'</span>'+
+        '<span style="font-size:10.5px;color:var(--dim)">'+d.agent+'</span></div></div>'}).join('')+
+      '</div>'}).join('')+'</div>';
+};
+
+P.calendar=function(){
+  var evs={5:'بازدید لواسان',9:'امضای قرارداد',12:'جلسهٔ ارزیابی',17:'بازدید زعفرانیه',21:'عکاسی هوایی',26:'تحویل کلید'};
+  var days='';
+  for(var i=1;i<=6;i++) days+='<div class="day off"><span>'+fa(25+i)+'</span></div>';
+  for(i=1;i<=30;i++){
+    days+='<div class="day'+(i===16?' today':'')+'" style="animation:sg .45s cubic-bezier(.16,1,.3,1) '+(i*0.012)+'s both">'+
+      '<b>'+fa(i)+'</b>'+(evs[i]?'<div class="ev">'+evs[i]+'</div>':'')+
+      (i%7===3?'<div class="ev" style="background:rgba(251,191,36,.2);color:var(--gold)">پیگیری</div>':'')+'</div>';
+  }
+  return '<div class="between mb"><div class="row"><button class="btn">→</button>'+
+   '<h3 style="font-size:19px">شهریور ۱۴۰۵</h3><button class="btn">←</button></div>'+
+   '<div class="tabs"><span class="tab on">ماه</span><span class="tab">هفته</span><span class="tab">روز</span></div></div>'+
+   '<div class="grid g21"><div class="card">'+
+   '<div class="cal mb">'+['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'].map(function(d){return '<div class="hd">'+d+'</div>'}).join('')+'</div>'+
+   '<div class="cal">'+days+'</div></div>'+
+   '<div class="card hov"><h3 class="mb">بازدیدهای امروز</h3><div class="list">'+
+   [['۰۹:۳۰','پنت‌هاوس زعفرانیه','سارا مرادی','ok'],['۱۱:۰۰','ویلای لواسان','امیر کاظمی','sk'],
+    ['۱۴:۱۵','آپارتمان الهیه','نگار حسینی','wr'],['۱۶:۴۵','دوبلکس فرمانیه','رضا فتحی','']].map(function(e){
+     return '<div class="it"><b style="font-size:12px;color:var(--s4);font-variant-numeric:tabular-nums">'+e[0]+'</b>'+
+     '<span><b style="display:block;font-size:12px">'+e[1]+'</b><span class="sub">'+e[2]+'</span></span>'+
+     '<span class="chip '+e[3]+'" style="margin-inline-start:auto">تأیید</span></div>'}).join('')+'</div></div></div>';
+};
+
+P.analytics=function(){
+  var hm='';
+  for(var i=0;i<7*24;i++){var v=rnd();
+    hm+='<i style="background:rgba(0,163,255,'+(0.08+v*0.85).toFixed(2)+')" title="'+fa(Math.round(v*100))+'"></i>'}
+  return '<div class="grid g4 mb stg">'+
+   [['۱۸۴٬۲۰۰','بازدید سایت','+۲۴٪'],['۴٫۸','صفحه بر جلسه','+۰٫۶'],['۳:۴۲','میانگین حضور','+۴۱ ثانیه'],['۲۳٫۸٪','نرخ تبدیل','+۲٫۱٪']]
+   .map(function(x){return '<div class="card hov kpi"><div class="beam"></div><div class="between mb"><span class="ic">'+ic('chart',18)+'</span>'+
+    '<span class="dl up">'+x[2]+'</span></div><b>'+x[0]+'</b><span class="lb">'+x[1]+'</span></div>'}).join('')+'</div>'+
+  '<div class="grid g2 mb">'+
+   '<div class="card hov"><h3 class="mb">ترافیک و تبدیل</h3><div style="height:200px">'+
+    area(series(40,120,40),500,190,'gf','#00A3FF','#38BDF8')+'</div></div>'+
+   '<div class="card hov"><h3 class="mb">درآمد بر اساس منطقه</h3>'+
+    bars([320,268,214,186,142,98],['زعفرانیه','لواسان','الهیه','فرمانیه','نیاوران','ولنجک'])+'</div></div>'+
+  '<div class="grid g21">'+
+   '<div class="card hov"><h3 class="mb">نقشهٔ حرارتی فعالیت</h3>'+
+    '<span class="sub" style="display:block;margin-bottom:10px">۷ روز × ۲۴ ساعت</span>'+
+    '<div class="hm">'+hm+'</div>'+
+    '<div class="lgd" style="margin-top:12px;justify-content:space-between"><span>۰۰:۰۰</span><span>۱۲:۰۰</span><span>۲۳:۰۰</span></div></div>'+
+   '<div class="card hov"><h3 class="mb">قیف فروش</h3><div class="list">'+
+    [['بازدید سایت',18420,100],['مشاهدهٔ ملک',6240,34],['درخواست بازدید',1280,7],['بازدید حضوری',640,3.5],['معامله',152,0.8]]
+    .map(function(f,i){return '<div style="padding:9px 0"><div class="between" style="margin-bottom:5px">'+
+     '<span style="font-size:12px">'+f[0]+'</span><b style="font-size:12px">'+num(f[1])+'</b></div>'+
+     '<div class="bar"><i style="width:'+f[2]+'%;animation-delay:'+(i*.12)+'s"></i></div></div>'}).join('')+'</div></div></div>';
+};
+
+P.marketing=function(){
+  var C=[['کمپین پنت‌هاوس زعفرانیه','اینستاگرام',84,'فعال','ok',420,38],
+         ['ریتارگتینگ بازدیدکنندگان','گوگل ادز',62,'فعال','ok',280,24],
+         ['ایمیل سرمایه‌گذاران','ایمیل',91,'فعال','ok',140,31],
+         ['ویدئو لواسان','یوتیوب',38,'متوقف','wr',320,9],
+         ['کمپین بهاره','تلگرام',12,'پایان‌یافته','',180,6]];
+  return '<div class="grid g4 mb stg">'+
+   [['۱٬۳۴۰ میلیون','هزینهٔ ماه'],['۲۴۸','سرنخ جذب‌شده'],['۵٫۴ میلیون','هزینه به ازای سرنخ'],['۴٫۸×','بازده تبلیغات']]
+   .map(function(x){return '<div class="card hov kpi"><div class="beam"></div><b>'+x[0]+'</b><span class="lb">'+x[1]+'</span>'+
+    '<div style="margin-top:8px;opacity:.6">'+spark(series(12,30,14),'var(--s3)')+'</div></div>'}).join('')+'</div>'+
+  '<div class="card" style="padding:6px 0"><div style="overflow-x:auto"><table><thead><tr>'+
+   '<th>کمپین</th><th>کانال</th><th>پیشرفت</th><th>وضعیت</th><th>هزینه (میلیون)</th><th>سرنخ</th><th>عملکرد</th></tr></thead><tbody>'+
+   C.map(function(c,i){return '<tr style="animation:sg .5s cubic-bezier(.16,1,.3,1) '+(i*.06)+'s both">'+
+    '<td><b>'+c[0]+'</b></td><td><span class="chip">'+c[1]+'</span></td>'+
+    '<td><div class="row"><span class="bar" style="width:90px;margin:0"><i style="width:'+c[2]+'%"></i></span>'+
+    '<span style="font-size:11px;color:var(--mut)">'+fa(c[2])+'٪</span></div></td>'+
+    '<td><span class="chip '+c[4]+'">'+c[3]+'</span></td><td>'+num(c[5])+'</td><td><b style="color:var(--s4)">'+fa(c[6])+'</b></td>'+
+    '<td style="width:110px">'+spark(series(10,20,12))+'</td></tr>'}).join('')+'</tbody></table></div></div>';
+};
+
+P.map=function(){
+  var pts=DISTRICTS.map(function(d,i){return [d, 12+(i%5)*19, 16+Math.floor(i/5)*34, Math.round(8+rnd()*26)]});
+  return '<div class="grid g21">'+
+  '<div class="card" style="padding:0;overflow:hidden"><div style="position:relative;aspect-ratio:16/10;background:linear-gradient(160deg,rgba(0,163,255,.1),transparent)">'+
+   '<svg viewBox="0 0 100 62" style="position:absolute;inset:0;width:100%;height:100%">'+
+   '<defs><pattern id="gp" width="6" height="6" patternUnits="userSpaceOnUse">'+
+   '<path d="M6 0H0V6" fill="none" stroke="rgba(125,211,252,.16)" stroke-width=".3"/></pattern></defs>'+
+   '<rect width="100" height="62" fill="url(#gp)"/>'+
+   '<path d="M8 40 Q26 22 44 30 T88 18" fill="none" stroke="rgba(0,163,255,.45)" stroke-width=".6"/>'+
+   '<path d="M14 10 Q40 34 62 26 T94 48" fill="none" stroke="rgba(125,211,252,.35)" stroke-width=".5"/>'+
+   pts.map(function(p,i){return '<g style="animation:fq .7s '+(i*.08)+'s both">'+
+     '<circle cx="'+p[1]+'" cy="'+p[2]+'" r="'+(p[3]/5)+'" fill="rgba(0,163,255,.22)"/>'+
+     '<circle cx="'+p[1]+'" cy="'+p[2]+'" r="1.6" fill="#38BDF8"/>'+
+     '<text x="'+p[1]+'" y="'+(p[2]-p[3]/5-1.5)+'" font-size="2.2" fill="currentColor" text-anchor="middle" opacity=".7">'+p[0]+'</text></g>'}).join('')+
+   '</svg></div></div>'+
+  '<div class="card hov"><h3 class="mb">تراکم بر اساس منطقه</h3><div class="list">'+
+   pts.sort(function(a,b){return b[3]-a[3]}).map(function(p,i){
+    return '<div style="padding:8px 0"><div class="between" style="margin-bottom:5px"><span style="font-size:12px">'+p[0]+'</span>'+
+    '<b style="font-size:12px;color:var(--s4)">'+fa(p[3])+' ملک</b></div>'+
+    '<div class="bar"><i style="width:'+(p[3]/34*100)+'%;animation-delay:'+(i*.07)+'s"></i></div></div>'}).join('')+'</div></div></div>';
+};
+
+P.media=function(){
+  var items='';
+  for(var i=0;i<18;i++){
+    items+='<div class="mi" style="animation:sg .55s cubic-bezier(.16,1,.3,1) '+(i*.04)+'s both">'+ph(i)+
+      '<div class="ov">'+['نمای خارجی','لابی','آشپزخانه','مستر','روف‌گاردن','استخر'][i%6]+' · '+fa(2+i%5)+'.'+fa(4)+' MB</div></div>';
+  }
+  return '<div class="between mb"><div class="tabs"><span class="tab on">همه (۱۸۴)</span><span class="tab">تصویر</span><span class="tab">ویدئو</span><span class="tab">تور ۳۶۰</span></div>'+
+   '<button class="btn pri">آپلود رسانه</button></div>'+
+   '<div class="card mb" style="border-style:dashed;text-align:center;padding:34px;cursor:pointer" id="drop">'+
+   '<div style="opacity:.6">'+ic('media',30)+'</div><b style="display:block;margin-top:10px">فایل را اینجا رها کنید</b>'+
+   '<span class="sub">JPG، PNG، MP4 یا GLB تا ۲۵۶ مگابایت</span></div>'+
+   '<div class="mg">'+items+'</div>';
+};
+
+P.cms=function(){
+  var pages=[['صفحهٔ اصلی','/','منتشرشده','ok','۱۲ ساعت'],['املاک','/properties','منتشرشده','ok','۲ روز'],
+   ['دربارهٔ ما','/about','منتشرشده','ok','۱ هفته'],['پروژه‌ها','/projects','پیش‌نویس','wr','۳ ساعت'],
+   ['بلاگ','/blog','منتشرشده','ok','۴ روز'],['تماس','/contact','منتشرشده','ok','۲ هفته'],
+   ['حریم خصوصی','/privacy','بازبینی','','۱ ماه']];
+  return '<div class="grid g12">'+
+  '<div><div class="card hov mb"><h3 class="mb">وضعیت انتشار</h3>'+
+   '<div class="row" style="justify-content:center">'+donut([['منتشر',5,'#22C55E'],['پیش‌نویس',1,'#F59E0B'],['بازبینی',1,'#38BDF8']],120)+'</div></div>'+
+   '<div class="card hov"><h3 class="mb">سئو</h3>'+
+   [['امتیاز کلی',92],['سرعت بارگذاری',88],['دسترس‌پذیری',96],['متادیتا',84]].map(function(s,i){
+     return '<div style="padding:7px 0"><div class="between" style="margin-bottom:5px"><span style="font-size:12px">'+s[0]+'</span>'+
+     '<b style="font-size:12px;color:var(--ok)">'+fa(s[1])+'</b></div><div class="bar"><i style="width:'+s[1]+'%;animation-delay:'+(i*.1)+'s"></i></div></div>'}).join('')+
+   '</div></div>'+
+  '<div class="card" style="padding:6px 0"><div class="between" style="padding:14px 18px 6px"><h3>صفحات سایت</h3>'+
+   '<button class="btn pri">صفحهٔ جدید</button></div>'+
+   '<table><thead><tr><th>عنوان</th><th>مسیر</th><th>وضعیت</th><th>آخرین ویرایش</th><th></th></tr></thead><tbody>'+
+   pages.map(function(p,i){return '<tr style="animation:sg .5s cubic-bezier(.16,1,.3,1) '+(i*.05)+'s both">'+
+    '<td><b>'+p[0]+'</b></td><td dir="ltr" style="font-family:monospace;color:var(--mut)">'+p[1]+'</td>'+
+    '<td><span class="chip '+p[3]+'">'+p[2]+'</span></td><td style="color:var(--dim)">'+p[4]+' پیش</td>'+
+    '<td><span class="chip sk">ویرایش</span></td></tr>'}).join('')+'</tbody></table></div></div>';
+};
+
+P.messages=function(){
+  var th=[['سارا مرادی','دربارهٔ پنت‌هاوس زعفرانیه سوال داشتم…','۲ دقیقه',1],
+   ['امیر کاظمی','ممنون بابت بازدید امروز','۴۰ دقیقه',0],
+   ['نگار حسینی','امکان مذاکره روی قیمت هست؟','۲ ساعت',1],
+   ['رضا فتحی','مدارک را ارسال کردم','دیروز',0],
+   ['مریم جلالی','تاریخ بازدید را جابه‌جا کنیم؟','۲ روز',1]];
+  return '<div class="grid" style="grid-template-columns:320px 1fr;gap:16px;height:calc(100vh - 140px)">'+
+  '<div class="card" style="padding:0;overflow-y:auto"><div style="padding:14px 16px;border-bottom:1px solid var(--line)"><h3>گفتگوها</h3></div>'+
+   th.map(function(t,i){return '<div class="it" style="padding:14px 16px;border-bottom:1px solid var(--line);cursor:pointer;gap:11px;display:flex;align-items:center;'+
+    (i===0?'background:var(--panel2)':'')+'">'+
+    '<span class="av">'+t[0].slice(0,1)+'</span><span style="flex:1;min-width:0">'+
+    '<b style="font-size:12.5px;display:block">'+t[0]+'</b>'+
+    '<span style="font-size:11px;color:var(--mut);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+t[1]+'</span></span>'+
+    '<span style="text-align:center"><span class="sub" style="display:block">'+t[2]+'</span>'+
+    (t[3]?'<span class="chip sk" style="margin-top:3px">جدید</span>':'')+'</span></div>'}).join('')+'</div>'+
+  '<div class="card" style="display:flex;flex-direction:column;padding:0">'+
+   '<div class="row" style="padding:14px 18px;border-bottom:1px solid var(--line)"><span class="av">س</span>'+
+   '<span><b style="font-size:13px;display:block">سارا مرادی</b><span class="chip ok">آنلاین</span></span></div>'+
+   '<div style="flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:10px">'+
+   [['in','سلام، دربارهٔ پنت‌هاوس زعفرانیه سوال داشتم. امکان بازدید آخر هفته هست؟'],
+    ['out','سلام وقت بخیر. بله، شنبه ساعت ۱۰ یا ۱۶ آزاد است.'],
+    ['in','شنبه ساعت ۱۰ عالیه. تور مجازی هم دارید؟'],
+    ['out','بله، لینک تور ۳۶۰ درجه را همین الان ارسال می‌کنم.']]
+   .map(function(m,i){var out=m[0]==='out';
+    return '<div style="align-self:'+(out?'flex-start':'flex-end')+';max-width:72%;padding:11px 15px;border-radius:'+(out?'14px 14px 14px 4px':'14px 14px 4px 14px')+';'+
+    'font-size:12.5px;background:'+(out?'linear-gradient(110deg,var(--s5),var(--s6));color:#fff':'var(--panel2)')+';'+
+    'animation:sg .5s cubic-bezier(.16,1,.3,1) '+(i*.1)+'s both">'+m[1]+'</div>'}).join('')+'</div>'+
+   '<div class="row" style="padding:14px 18px;border-top:1px solid var(--line)">'+
+   '<input class="inp" placeholder="پیام خود را بنویسید…"><button class="btn pri">ارسال</button></div></div></div>';
+};
+
+P.team=function(){
+  var roles=[['نگین کاویانی','مدیر فروش','مدیر',98,'ok'],['آرش رستمی','مشاور ارشد','ویرایشگر',86,'ok'],
+   ['سارا مهرابی','مشاور','ویرایشگر',74,'wr'],['بهرام نوری','مشاور','فقط خواندن',62,'wr'],
+   ['لیلا شریفی','بازاریابی','ویرایشگر',91,'ok'],['کامران احمدی','حقوقی','فقط خواندن',55,'bd']];
+  return '<div class="between mb"><h3 style="font-size:18px">اعضای تیم (۶)</h3><button class="btn pri">دعوت عضو</button></div>'+
+  '<div class="grid g3 mb stg">'+roles.map(function(r){
+   return '<div class="card hov"><div class="beam"></div><div class="row mb"><span class="av" style="width:44px;height:44px;border-radius:14px;font-size:15px">'+r[0].slice(0,1)+'</span>'+
+   '<span><b style="font-size:14px;display:block">'+r[0]+'</b><span class="sub">'+r[1]+'</span></span>'+
+   '<span class="chip '+r[4]+'" style="margin-inline-start:auto">'+r[2]+'</span></div>'+
+   '<div class="between" style="font-size:11.5px;color:var(--mut);margin-bottom:5px"><span>عملکرد فصل</span><b>'+fa(r[3])+'٪</b></div>'+
+   '<div class="bar"><i style="width:'+r[3]+'%"></i></div></div>'}).join('')+'</div>'+
+  '<div class="card"><h3 class="mb">ماتریس دسترسی</h3><table><thead><tr><th>قابلیت</th><th>مدیر</th><th>ویرایشگر</th><th>فقط خواندن</th></tr></thead><tbody>'+
+   [['مشاهدهٔ املاک',1,1,1],['ویرایش املاک',1,1,0],['حذف املاک',1,0,0],['مشاهدهٔ مالی',1,0,0],
+    ['مدیریت تیم',1,0,0],['انتشار محتوا',1,1,0],['خروجی داده',1,1,0]].map(function(p){
+     return '<tr><td>'+p[0]+'</td>'+[1,2,3].map(function(k){
+      return '<td>'+(p[k]?'<span class="chip ok">✓</span>':'<span class="chip bd">✕</span>')+'</td>'}).join('')+'</tr>'}).join('')+
+   '</tbody></table></div>';
+};
+
+P.billing=function(){
+  return '<div class="grid g4 mb stg">'+
+   [['۱٬۴۲۰ میلیارد','درآمد سال','+۱۸٪'],['۸۴ میلیارد','کمیسیون ماه','+۹٪'],['۱۲','فاکتور باز','−۳'],['۹۶٫۴٪','نرخ وصول','+۱٫۲٪']]
+   .map(function(x){return '<div class="card hov kpi"><div class="beam"></div><div class="between mb"><span class="ic">'+ic('card',18)+'</span>'+
+    '<span class="dl up">'+x[2]+'</span></div><b>'+x[0]+'</b><span class="lb">'+x[1]+'</span></div>'}).join('')+'</div>'+
+  '<div class="grid g21 mb"><div class="card hov"><h3 class="mb">درآمد ماهانه</h3>'+
+   bars([86,104,92,128,141,118,164,152,178],['فرو','ارد','خرد','تیر','مرد','شهر','مهر','آبا','آذر'],'var(--s5)')+'</div>'+
+   '<div class="card hov"><h3 class="mb">تفکیک کمیسیون</h3>'+
+   '<div class="row" style="justify-content:center;margin:8px 0 16px">'+
+   donut([['مشاوران',52,'#00A3FF'],['شرکت',31,'#38BDF8'],['بازاریابی',17,'#7DD3FC']],130)+'</div>'+
+   '<div class="lgd" style="justify-content:center"><span><i style="background:#00A3FF"></i>مشاوران ۵۲٪</span>'+
+   '<span><i style="background:#38BDF8"></i>شرکت ۳۱٪</span><span><i style="background:#7DD3FC"></i>بازاریابی ۱۷٪</span></div></div></div>'+
+  '<div class="card" style="padding:6px 0"><div style="padding:14px 18px 6px"><h3>فاکتورها</h3></div><table><thead><tr>'+
+   '<th>شماره</th><th>مشتری</th><th>ملک</th><th>مبلغ (میلیارد)</th><th>سررسید</th><th>وضعیت</th></tr></thead><tbody>'+
+   [['INV-2411','سارا مرادی','پنت‌هاوس زعفرانیه',4.2,'۱۴۰۵/۰۶/۲۸','پرداخت‌شده','ok'],
+    ['INV-2412','امیر کاظمی','ویلای لواسان',6.0,'۱۴۰۵/۰۷/۰۵','در انتظار','wr'],
+    ['INV-2413','نگار حسینی','آپارتمان الهیه',2.6,'۱۴۰۵/۰۶/۱۵','معوق','bd'],
+    ['INV-2414','رضا فتحی','دوبلکس فرمانیه',3.3,'۱۴۰۵/۰۷/۱۲','پرداخت‌شده','ok'],
+    ['INV-2415','مریم جلالی','برج باغ کامرانیه',4.8,'۱۴۰۵/۰۷/۲۰','پیش‌نویس','']]
+   .map(function(v,i){return '<tr style="animation:sg .5s cubic-bezier(.16,1,.3,1) '+(i*.06)+'s both">'+
+    '<td dir="ltr" style="font-family:monospace">'+v[0]+'</td><td><b>'+v[1]+'</b></td><td style="color:var(--mut)">'+v[2]+'</td>'+
+    '<td><b style="color:var(--s4)">'+fa(v[3])+'</b></td><td>'+v[4]+'</td><td><span class="chip '+v[6]+'">'+v[5]+'</span></td></tr>'}).join('')+
+   '</tbody></table></div>';
+};
+
+P.audit=function(){
+  var ev=[];
+  var acts=['ورود موفق','ویرایش ملک','حذف رسانه','تغییر قیمت','خروجی داده','دعوت کاربر','تغییر دسترسی','ورود ناموفق'];
+  for(var i=0;i<16;i++){
+    ev.push([pick(AGENTS),pick(acts),'۱۹۲٫۱۶۸٫۱٫'+Math.floor(rnd()*250),fa(Math.floor(rnd()*23)).padStart(2,'۰')+':'+fa(Math.floor(rnd()*59)).padStart(2,'۰'),rnd()>.85?'bd':'ok']);
+  }
+  return '<div class="grid g4 mb stg">'+
+   [['۱۲۴','رویداد امروز'],['۳','تلاش ناموفق'],['۱۰۰٪','آپ‌تایم'],['A+','امتیاز امنیت']]
+   .map(function(x){return '<div class="card hov kpi"><div class="beam"></div><b>'+x[0]+'</b><span class="lb">'+x[1]+'</span></div>'}).join('')+'</div>'+
+  '<div class="card" style="padding:6px 0"><div style="padding:14px 18px 6px"><h3>گزارش رویدادها</h3>'+
+   '<span class="sub">نگهداری ۳۶۵ روزه · قابل خروجی برای حسابرسی</span></div>'+
+   '<table><thead><tr><th>کاربر</th><th>رویداد</th><th>IP</th><th>زمان</th><th>وضعیت</th></tr></thead><tbody>'+
+   ev.map(function(e,i){return '<tr style="animation:sg .45s cubic-bezier(.16,1,.3,1) '+(i*.03)+'s both">'+
+    '<td><div class="row"><span class="av" style="width:26px;height:26px;border-radius:8px;font-size:10px">'+e[0].slice(0,1)+'</span>'+e[0]+'</div></td>'+
+    '<td>'+e[1]+'</td><td dir="ltr" style="font-family:monospace;color:var(--mut)">'+e[2]+'</td>'+
+    '<td style="font-variant-numeric:tabular-nums">'+e[3]+'</td>'+
+    '<td><span class="chip '+e[4]+'">'+(e[4]==='ok'?'موفق':'مسدود')+'</span></td></tr>'}).join('')+'</tbody></table></div>';
+};
+
+P.settings=function(){
+  var sw=function(l,d,on){return '<div class="between" style="padding:13px 0;border-bottom:1px solid var(--line)">'+
+   '<span><b style="font-size:12.5px;display:block">'+l+'</b><span class="sub">'+d+'</span></span>'+
+   '<span class="sw'+(on?' on':'')+'" data-sw><i></i></span></div>'};
+  return '<div class="grid g2">'+
+  '<div><div class="card hov mb"><h3 class="mb">پروفایل سازمان</h3>'+
+   '<div class="field"><label>نام برند</label><input class="inp" value="املاک درخشان"></div>'+
+   '<div class="field"><label>دامنه</label><input class="inp" dir="ltr" value="derakhshan.co"></div>'+
+   '<div class="field"><label>ایمیل پشتیبانی</label><input class="inp" dir="ltr" value="hello@derakhshan.co"></div>'+
+   '<button class="btn pri" style="margin-top:8px" data-toast="تغییرات ذخیره شد">ذخیرهٔ تغییرات</button></div>'+
+   '<div class="card hov"><h3 class="mb">هویت بصری</h3>'+
+   '<span class="sub" style="display:block;margin-bottom:10px">پالت برند</span>'+
+   '<div class="row" style="flex-wrap:wrap">'+['#00A3FF','#38BDF8','#7DD3FC','#0B3A5C','#0F172A','#FFFEFC'].map(function(c){
+    return '<span style="width:44px;height:44px;border-radius:12px;background:'+c+';border:1px solid var(--line);cursor:pointer;transition:.4s" '+
+    'onmouseover="this.style.transform=\'scale(1.12) rotate(-6deg)\'" onmouseout="this.style.transform=\'\'" title="'+c+'"></span>'}).join('')+'</div>'+
+   '<div class="field" style="margin-top:16px"><label>فونت اصلی</label>'+
+   '<select class="inp"><option>Vazirmatn</option><option>Rubik</option><option>IRANSans</option></select></div></div></div>'+
+  '<div><div class="card hov mb"><h3 class="mb">اعلان‌ها</h3>'+
+   sw('سرنخ جدید','هنگام ثبت فرم تماس',1)+sw('تغییر مرحلهٔ معامله','جابه‌جایی در پایپ‌لاین',1)+
+   sw('گزارش هفتگی','هر شنبه ساعت ۹ صبح',1)+sw('هشدار قیمت','تغییر بیش از ۵٪',0)+
+   sw('ورود ناشناس','از دستگاه جدید',1)+'</div>'+
+   '<div class="card hov mb"><h3 class="mb">امنیت</h3>'+
+   sw('احراز هویت دو مرحله‌ای','اجباری برای همهٔ اعضا',1)+
+   sw('محدودیت IP','فقط شبکهٔ دفتر',0)+
+   sw('خروج خودکار','پس از ۳۰ دقیقه بی‌فعالیتی',1)+'</div>'+
+   '<div class="card hov"><h3 class="mb">یکپارچه‌سازی</h3><div class="list">'+
+   [['Cloudflare','میزبانی و CDN','ok','متصل'],['Google Analytics','تحلیل ترافیک','ok','متصل'],
+    ['WhatsApp Business','پیام‌رسانی','wr','در انتظار'],['Metabase','گزارش‌گیری','','غیرفعال']]
+   .map(function(g){return '<div class="it"><span class="ic" style="width:32px;height:32px">'+ic('bolt',15)+'</span>'+
+    '<span><b style="font-size:12.5px;display:block">'+g[0]+'</b><span class="sub">'+g[1]+'</span></span>'+
+    '<span class="chip '+g[2]+'" style="margin-inline-start:auto">'+g[3]+'</span></div>'}).join('')+'</div></div></div></div>';
+};
+
+/* =============== ROUTER =============== */
+var cur='dashboard';
+function go(r,arg){
+  cur=r;
+  var t=TITLES[r]||['',''];
+  $('#cb').textContent=t[0]; $('#ct').textContent=t[1];
+  $$('.nl').forEach(function(n){n.classList.toggle('on',n.dataset.go===r)});
+  var el=$('#page');
+  el.classList.remove('enter'); void el.offsetWidth;
+  el.innerHTML=(P[r]||P.dashboard)(arg);
+  el.classList.add('enter');
+  $('#main').scrollTop=0;
+  wire();
+}
+function wire(){
+  $$('[data-go]').forEach(function(e){ if(e.__w)return; e.__w=1;
+    e.addEventListener('click',function(){go(e.dataset.go)})});
+  $$('[data-detail]').forEach(function(e){
+    e.addEventListener('click',function(){go('detail',e.dataset.detail)})});
+  $$('th[data-sort]').forEach(function(e){
+    e.addEventListener('click',function(){
+      var k=e.dataset.sort;
+      if(sortKey===k) sortDir*=-1; else {sortKey=k;sortDir=-1}
+      go('listings');
+    })});
+  $$('.tabs').forEach(function(g){$$('.tab',g).forEach(function(t){
+    t.addEventListener('click',function(){$$('.tab',g).forEach(function(x){x.classList.remove('on')});t.classList.add('on')})})});
+  $$('[data-sw]').forEach(function(s){s.addEventListener('click',function(){
+    s.classList.toggle('on'); toast(s.classList.contains('on')?'فعال شد':'غیرفعال شد')})});
+  $$('[data-toast]').forEach(function(b){b.addEventListener('click',function(){toast(b.dataset.toast)})});
+  if(!RM) $$('.card.hov').forEach(function(c){
+    c.addEventListener('mousemove',function(e){
+      var r=c.getBoundingClientRect();
+      var b=$('.beam',c); if(!b)return;
+      b.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');
+      b.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');
+    })});
+  kanban();
+}
+
+/* =============== KANBAN DnD =============== */
+function kanban(){
+  var kb=$('#kb'); if(!kb)return;
+  var dragged=null;
+  $$('.deal',kb).forEach(function(d){
+    d.addEventListener('dragstart',function(){dragged=d;d.classList.add('drag')});
+    d.addEventListener('dragend',function(){d.classList.remove('drag');dragged=null});
+  });
+  $$('.col',kb).forEach(function(c){
+    c.addEventListener('dragover',function(e){e.preventDefault();c.classList.add('over')});
+    c.addEventListener('dragleave',function(){c.classList.remove('over')});
+    c.addEventListener('drop',function(e){
+      e.preventDefault(); c.classList.remove('over');
+      if(!dragged)return;
+      c.appendChild(dragged);
+      var id=dragged.dataset.id, s=+c.dataset.col;
+      DEALS.forEach(function(d){if(d.id===id)d.s=s});
+      toast('معامله به «'+STAGES[s]+'» منتقل شد');
+    });
+  });
+}
+
+/* =============== TOAST =============== */
+function toast(msg){
+  var t=document.createElement('div');
+  t.className='toast'; t.innerHTML='<span class="dot"></span>'+msg;
+  $('#toasts').appendChild(t);
+  setTimeout(function(){t.classList.add('out');setTimeout(function(){t.remove()},400)},3200);
+}
+
+/* =============== COMMAND PALETTE =============== */
+var CMDS=[];
+NAV.forEach(function(g){g[1].forEach(function(n){CMDS.push({t:n[1],s:'صفحه · '+g[0],go:n[0]})})});
+LISTINGS.slice(0,18).forEach(function(l){CMDS.push({t:l.title,s:'ملک · '+l.id,detail:l.id})});
+LEADS.slice(0,10).forEach(function(l){CMDS.push({t:l.n,s:'مشتری · '+l.src,go:'leads'})});
+CMDS.push({t:'تغییر تم روشن/تیره',s:'دستور',fn:theme});
+CMDS.push({t:'خروجی گرفتن از داده‌ها',s:'دستور',fn:function(){toast('فایل خروجی در حال آماده‌سازی…')}});
+
+var cmdSel=0;
+function renderCmd(q){
+  var res=CMDS.filter(function(c){return !q||c.t.indexOf(q)>-1||c.s.indexOf(q)>-1}).slice(0,9);
+  cmdSel=0;
+  $('#cmdr').innerHTML=res.length?res.map(function(c,i){
+    return '<div class="r'+(i===0?' sel':'')+'" data-i="'+i+'">'+ic('bolt',14)+'<span>'+c.t+'</span><small>'+c.s+'</small></div>'
+  }).join(''):'<div class="empty">نتیجه‌ای یافت نشد</div>';
+  $$('#cmdr .r').forEach(function(r){r.addEventListener('click',function(){runCmd(res[+r.dataset.i])})});
+  return res;
+}
+var cmdRes=[];
+function runCmd(c){ if(!c)return; closeCmd();
+  if(c.fn) c.fn(); else if(c.detail) go('detail',c.detail); else go(c.go);
+}
+function openCmd(){$('#cmd').classList.add('on');$('#cmdi').value='';cmdRes=renderCmd('');setTimeout(function(){$('#cmdi').focus()},60)}
+function closeCmd(){$('#cmd').classList.remove('on')}
+$('#openCmd').addEventListener('click',openCmd);
+$('#cmdi').addEventListener('input',function(e){cmdRes=renderCmd(e.target.value.trim())});
+$('#cmdi').addEventListener('keydown',function(e){
+  var rs=$$('#cmdr .r');
+  if(e.key==='ArrowDown'){e.preventDefault();cmdSel=Math.min(rs.length-1,cmdSel+1)}
+  else if(e.key==='ArrowUp'){e.preventDefault();cmdSel=Math.max(0,cmdSel-1)}
+  else if(e.key==='Enter'){return runCmd(cmdRes[cmdSel])}
+  else return;
+  rs.forEach(function(r,i){r.classList.toggle('sel',i===cmdSel)});
+});
+document.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openCmd()}
+  if(e.key==='Escape'){closeCmd();closeDrw()}
+});
+$('#cmd').addEventListener('click',function(e){if(e.target.id==='cmd')closeCmd()});
+
+/* =============== DRAWER (notifications) =============== */
+function openDrw(){
+  $('#drw').innerHTML='<div class="between mb"><h3 style="font-size:17px">اعلان‌ها</h3>'+
+   '<span class="chip sk" style="cursor:pointer" id="clr">خواندن همه</span></div>'+
+   [['معاملهٔ DP-1417 نهایی شد','۱۲ دقیقه','ok'],['۶ سرنخ جدید از اینستاگرام','۱ ساعت','sk'],
+    ['فاکتور INV-2413 معوق شد','۳ ساعت','bd'],['بازدید فردا ساعت ۱۰ تأیید شد','۵ ساعت','wr'],
+    ['گزارش هفتگی آماده است','دیروز',''],['کاربر جدید به تیم اضافه شد','۲ روز','']]
+   .map(function(n,i){return '<div class="card hov" style="margin-bottom:9px;padding:14px;animation:sg .5s cubic-bezier(.16,1,.3,1) '+(i*.06)+'s both">'+
+    '<div class="between"><b style="font-size:12.5px">'+n[0]+'</b><span class="chip '+n[2]+'">'+n[1]+'</span></div></div>'}).join('');
+  $('#drw').classList.add('on'); $('#scrim').classList.add('on');
+  var c=$('#clr'); if(c)c.addEventListener('click',function(){toast('همهٔ اعلان‌ها خوانده شد');closeDrw()});
+}
+function closeDrw(){$('#drw').classList.remove('on');$('#scrim').classList.remove('on')}
+$('#bellBtn').addEventListener('click',openDrw);
+$('#scrim').addEventListener('click',closeDrw);
+
+/* =============== THEME =============== */
+function theme(){
+  var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',n);
+  try{localStorage.setItem('drk-adm',n)}catch(e){}
+  toast('تم '+(n==='dark'?'تیره':'روشن')+' فعال شد');
+}
+$('#themeBtn').addEventListener('click',theme);
+try{var sv=localStorage.getItem('drk-adm'); if(sv)document.documentElement.setAttribute('data-theme',sv)}catch(e){}
+
+$('#newBtn').addEventListener('click',function(){toast('فرم ثبت ملک جدید باز شد')});
+
+/* =============== BOOT =============== */
+var bm=$('#bmark');
+'درخشان'.split('').forEach(function(ch,i){
+  var s=document.createElement('span'); s.textContent=ch;
+  s.style.animationDelay=(0.12+i*0.07)+'s'; bm.appendChild(s);
+});
+$('#rem').addEventListener('click',function(){this.classList.toggle('on')});
+function enter(){
+  var b=$('#boot');
+  b.style.transition='opacity .8s cubic-bezier(.7,0,.3,1),transform .8s cubic-bezier(.7,0,.3,1),filter .8s';
+  b.style.opacity='0'; b.style.transform='scale(1.06)'; b.style.filter='blur(14px)';
+  setTimeout(function(){b.remove()},820);
+  $('#app').classList.add('on');
+  go('dashboard');
+  setTimeout(function(){toast('خوش آمدید — ۳ اعلان خوانده‌نشده دارید')},1100);
+}
+$('#login').addEventListener('click',enter);
+$('#boot').addEventListener('keydown',function(e){if(e.key==='Enter')enter()});
+if(RM) enter();
+
+})();
+</script>
+</body>
+</html>
