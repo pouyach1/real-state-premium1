@@ -1,0 +1,26 @@
+const express = require('express');
+const controller = require('../controllers/admin');
+const validate = require('../middlewares/validate');
+const { requireAuth, requireRole } = require('../middlewares/auth');
+const { leadUpdateSchema, testimonialSchema, settingsSchema } = require('../validators/admin');
+const propertyController = require('../controllers/property');
+const upload = require('../middlewares/upload');
+const { createPropertySchema, updatePropertySchema } = require('../validators/property');
+
+const router = express.Router();
+router.use(requireAuth);
+router.post('/properties', requireRole(['admin', 'superadmin']), validate(createPropertySchema), propertyController.create);
+router.patch('/properties/:id', requireRole(['admin', 'superadmin']), validate(updatePropertySchema), propertyController.update);
+router.delete('/properties/:id', requireRole(['admin', 'superadmin']), propertyController.remove);
+router.post('/properties/:id/media', requireRole(['admin', 'superadmin']), upload.single('file'), propertyController.addMedia);
+router.get('/leads', requireRole(['admin', 'superadmin']), controller.leads);
+router.patch('/leads/:id', requireRole(['admin', 'superadmin']), validate(leadUpdateSchema), controller.updateLead);
+router.get('/testimonials', requireRole(['admin', 'superadmin']), controller.testimonials);
+router.post('/testimonials', requireRole(['admin', 'superadmin']), validate(testimonialSchema), controller.createTestimonial);
+router.patch('/testimonials/:id', requireRole(['admin', 'superadmin']), validate(testimonialSchema), controller.updateTestimonial);
+router.delete('/testimonials/:id', requireRole(['admin', 'superadmin']), controller.deleteTestimonial);
+router.get('/agents', requireRole(['superadmin']), controller.agents);
+router.post('/agents', requireRole(['superadmin']), controller.createAgent);
+router.get('/dashboard/summary', requireRole(['admin', 'superadmin']), controller.dashboard);
+router.patch('/settings', requireRole(['admin', 'superadmin']), validate(settingsSchema), controller.settings);
+module.exports = router;
