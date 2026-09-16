@@ -8,7 +8,8 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "seed": "node scripts/seed.js",
-    "check": "node --check src/server.js && node --check src/app.js"
+    "check": "node --check src/server.js && node --check src/app.js",
+    "test:integration": "node scripts/integration-test.js"
   },
   "engines": {
     "node": ">=20"
@@ -30,6 +31,7 @@
     "sharp": "^0.35.4"
   },
   "devDependencies": {
+    "mongodb-memory-server": "^10.4.3",
     "nodemon": "^3.1.9",
     "supertest": "^7.2.2"
   }

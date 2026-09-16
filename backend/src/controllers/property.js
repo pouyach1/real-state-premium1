@@ -1,7 +1,12 @@
 const propertyService = require('../services/property');
 const { success } = require('../utils/response');
 
-async function list(req, res, next) { try { return success(res, await propertyService.listPublic(req.query)); } catch (error) { return next(error); } }
+async function list(req, res, next) {
+	try {
+		const result = await propertyService.listPublic(req.query);
+		return success(res, { items: result.items }, 200, { total: result.total, page: result.page, limit: result.limit, pages: result.pages });
+	} catch (error) { return next(error); }
+}
 async function getBySlug(req, res, next) { try { return success(res, await propertyService.getPublicBySlug(req.params.slug)); } catch (error) { return next(error); } }
 async function create(req, res, next) { try { return success(res, await propertyService.create(req.body), 201); } catch (error) { return next(error); } }
 async function update(req, res, next) { try { return success(res, await propertyService.update(req.params.id, req.body)); } catch (error) { return next(error); } }
