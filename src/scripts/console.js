@@ -624,6 +624,7 @@ function go(r,arg){
   $('#main').scrollTop=0;
   wire();
 }
+window.DerakhshanConsoleGo=go;
 function wire(){
   $$('[data-go]').forEach(function(e){ if(e.__w)return; e.__w=1;
     e.addEventListener('click',function(){go(e.dataset.go)})});
