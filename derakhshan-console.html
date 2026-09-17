@@ -297,12 +297,13 @@ tbody tr:hover td:first-child{border-inline-start-color:var(--s5)}
     <h1 style="text-align:center">کنسول مدیریت</h1>
     <p style="text-align:center">دسترسی محدود · احراز هویت دو مرحله‌ای</p>
     <div class="field"><label>ایمیل سازمانی</label><input class="inp" id="mail" value="admin@derakhshan.co" dir="ltr"></div>
-    <div class="field"><label>رمز عبور</label><input class="inp" type="password" value="••••••••••" dir="ltr"></div>
+    <div class="field"><label>رمز عبور</label><input class="inp" id="password" type="password" placeholder="رمز عبور را وارد کنید" autocomplete="current-password" dir="ltr"></div>
     <div class="row" style="margin:16px 0 20px;font-size:11.5px;color:var(--mut)">
       <span class="sw on" id="rem"><i></i></span> مرا به خاطر بسپار
       <span style="margin-inline-start:auto;color:var(--s4);cursor:pointer">فراموشی رمز؟</span>
     </div>
     <button class="btn pri" id="login" style="width:100%;justify-content:center;padding:13px">ورود به کنسول</button>
+    <div id="authError" role="alert" aria-live="polite" style="display:none;color:var(--bad);font-size:11.5px;text-align:center;margin-top:10px"></div>
     <p style="text-align:center;margin:16px 0 0;font-size:10.5px;color:var(--dim)">نسخهٔ ۳٫۰ · ساخته‌شده برای درخشان</p>
   </div>
 </div>
@@ -362,6 +363,14 @@ var $=function(s,r){return (r||document).querySelector(s)},
 var fa=function(n){return String(n).replace(/\d/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'[d]})};
 var num=function(n){return fa(Number(n).toLocaleString('en-US'))};
 var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var API_BASE=(window.DERAKHSHAN_API_URL||'http://localhost:4000/api').replace(/\/$/,'');
+var accessToken=null;
+function setAuthError(message){var error=$('#authError');if(!error)return;error.textContent=message||'';error.style.display=message?'block':'none'}
+function authMessage(response){if(response.status===401)return 'ایمیل یا رمز عبور صحیح نیست.';if(response.status===429)return 'تعداد تلاش‌ها زیاد است. چند دقیقه بعد دوباره امتحان کنید.';if(response.status>=500)return 'سرویس موقتاً در دسترس نیست.';return 'اطلاعات ورود را بررسی کنید.'}
+async function refreshAccessToken(){var response=await fetch(API_BASE+'/auth/refresh',{method:'POST',credentials:'include'});if(!response.ok){accessToken=null;return false}var body=await response.json();accessToken=body.data&&body.data.accessToken||null;return Boolean(accessToken)}
+async function login(){var button=$('#login'),email=$('#mail').value.trim(),password=$('#password').value;setAuthError('');if(!email||!password){setAuthError('ایمیل و رمز عبور را وارد کنید.');return}button.disabled=true;try{var response=await fetch(API_BASE+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({email:email,password:password})});if(!response.ok){setAuthError(authMessage(response));return}var body=await response.json();accessToken=body.data&&body.data.accessToken||null;if(!accessToken){setAuthError('پاسخ احراز هویت نامعتبر است.');return}enter()}catch(error){setAuthError('اتصال به سرویس ورود برقرار نشد.')}finally{button.disabled=false}}
+async function logout(){try{await fetch(API_BASE+'/auth/logout',{method:'POST',credentials:'include'})}catch(error){}accessToken=null;window.location.reload()}
+window.DerakhshanAuth={getAccessToken:function(){return accessToken},refresh:refreshAccessToken,logout:logout};
 
 /* =============== ICONS =============== */
 var I={
@@ -1036,6 +1045,7 @@ LISTINGS.slice(0,18).forEach(function(l){CMDS.push({t:l.title,s:'ملک · '+l.i
 LEADS.slice(0,10).forEach(function(l){CMDS.push({t:l.n,s:'مشتری · '+l.src,go:'leads'})});
 CMDS.push({t:'تغییر تم روشن/تیره',s:'دستور',fn:theme});
 CMDS.push({t:'خروجی گرفتن از داده‌ها',s:'دستور',fn:function(){toast('فایل خروجی در حال آماده‌سازی…')}});
+CMDS.push({t:'خروج از کنسول',s:'احراز هویت',fn:logout});
 
 var cmdSel=0;
 function renderCmd(q){
@@ -1113,8 +1123,8 @@ function enter(){
   go('dashboard');
   setTimeout(function(){toast('خوش آمدید — ۳ اعلان خوانده‌نشده دارید')},1100);
 }
-$('#login').addEventListener('click',enter);
-$('#boot').addEventListener('keydown',function(e){if(e.key==='Enter')enter()});
+$('#login').addEventListener('click',login);
+$('#boot').addEventListener('keydown',function(e){if(e.key==='Enter')login()});
 if(RM) enter();
 
 })();

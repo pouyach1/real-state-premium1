@@ -35,6 +35,8 @@ async function run() {
 
     const corsAllowed = await request(app).options('/api/health').set('Origin', 'http://localhost:5500');
     assert.equal(corsAllowed.headers['access-control-allow-origin'], 'http://localhost:5500');
+    const fileOrigin = await request(app).options('/api/health').set({ Origin: 'null', 'Access-Control-Request-Method': 'GET' });
+    assert.equal(fileOrigin.headers['access-control-allow-origin'], 'null');
     const corsBlocked = await request(app).options('/api/health').set({ Origin: 'https://evil.example', 'Access-Control-Request-Method': 'GET' });
     assert.equal(corsBlocked.headers['access-control-allow-origin'], undefined);
 

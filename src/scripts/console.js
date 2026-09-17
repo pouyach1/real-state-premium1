@@ -5,6 +5,14 @@ var $=function(s,r){return (r||document).querySelector(s)},
 var fa=function(n){return String(n).replace(/\d/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'[d]})};
 var num=function(n){return fa(Number(n).toLocaleString('en-US'))};
 var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var API_BASE=(window.DERAKHSHAN_API_URL||'http://localhost:4000/api').replace(/\/$/,'');
+var accessToken=null;
+function setAuthError(message){var error=$('#authError');if(!error)return;error.textContent=message||'';error.style.display=message?'block':'none'}
+function authMessage(response){if(response.status===401)return 'ایمیل یا رمز عبور صحیح نیست.';if(response.status===429)return 'تعداد تلاش‌ها زیاد است. چند دقیقه بعد دوباره امتحان کنید.';if(response.status>=500)return 'سرویس موقتاً در دسترس نیست.';return 'اطلاعات ورود را بررسی کنید.'}
+async function refreshAccessToken(){var response=await fetch(API_BASE+'/auth/refresh',{method:'POST',credentials:'include'});if(!response.ok){accessToken=null;return false}var body=await response.json();accessToken=body.data&&body.data.accessToken||null;return Boolean(accessToken)}
+async function login(){var button=$('#login'),email=$('#mail').value.trim(),password=$('#password').value;setAuthError('');if(!email||!password){setAuthError('ایمیل و رمز عبور را وارد کنید.');return}button.disabled=true;try{var response=await fetch(API_BASE+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({email:email,password:password})});if(!response.ok){setAuthError(authMessage(response));return}var body=await response.json();accessToken=body.data&&body.data.accessToken||null;if(!accessToken){setAuthError('پاسخ احراز هویت نامعتبر است.');return}enter()}catch(error){setAuthError('اتصال به سرویس ورود برقرار نشد.')}finally{button.disabled=false}}
+async function logout(){try{await fetch(API_BASE+'/auth/logout',{method:'POST',credentials:'include'})}catch(error){}accessToken=null;window.location.reload()}
+window.DerakhshanAuth={getAccessToken:function(){return accessToken},refresh:refreshAccessToken,logout:logout};
 
 /* =============== ICONS =============== */
 var I={
@@ -679,6 +687,7 @@ LISTINGS.slice(0,18).forEach(function(l){CMDS.push({t:l.title,s:'ملک · '+l.i
 LEADS.slice(0,10).forEach(function(l){CMDS.push({t:l.n,s:'مشتری · '+l.src,go:'leads'})});
 CMDS.push({t:'تغییر تم روشن/تیره',s:'دستور',fn:theme});
 CMDS.push({t:'خروجی گرفتن از داده‌ها',s:'دستور',fn:function(){toast('فایل خروجی در حال آماده‌سازی…')}});
+CMDS.push({t:'خروج از کنسول',s:'احراز هویت',fn:logout});
 
 var cmdSel=0;
 function renderCmd(q){
@@ -756,8 +765,8 @@ function enter(){
   go('dashboard');
   setTimeout(function(){toast('خوش آمدید — ۳ اعلان خوانده‌نشده دارید')},1100);
 }
-$('#login').addEventListener('click',enter);
-$('#boot').addEventListener('keydown',function(e){if(e.key==='Enter')enter()});
+$('#login').addEventListener('click',login);
+$('#boot').addEventListener('keydown',function(e){if(e.key==='Enter')login()});
 if(RM) enter();
 
 })();

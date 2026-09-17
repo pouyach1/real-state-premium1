@@ -13,7 +13,7 @@ app.disable('x-powered-by');
 app.use(helmet());
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || env.CORS_ORIGINS.includes(origin)) return callback(null, true);
+    if (!origin || env.CORS_ORIGINS.includes(origin) || (env.NODE_ENV !== 'production' && origin === 'null')) return callback(null, true);
     return callback(null, false);
   },
   credentials: true
